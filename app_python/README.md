@@ -47,3 +47,35 @@ PORT=8080 python app.py # if you want to use a custom port (the default is 5000)
 | #2 | PORT | Port for the application access | 
 | #3 | DEBUG | Debug status | 
 
+### Docker container ###
+
+#### Building the image locally ###
+
+Use the command in format:
+```bash
+docker build -t your-docker-username/image-name:image-tag directory-with-dockerfile
+```
+Example: 
+```bash
+docker build -t fountainer/my-app:1.1.0 .
+```
+#### Running a container ###
+
+Use the command in format:
+```bash 
+docker run -p host-port:container-port image-name:tag
+```
+Example:
+```bash
+docker run -p 12345:12345 my-app:1.0.0
+```
+#### Pulling from Docker Hub ###
+
+```bash
+docker image pull image-name:image-tag
+```
+
+Example: 
+```bash
+docker image pull fountainer/my-app:1.0.0
+```

@@ -21,10 +21,9 @@ python_version = platform.python_version()
 hostname = socket.gethostname()
 
 # env variables
-HOST = hostname if hostname != "" else os.getenv("HOST", "0.0.0.0")
+ADDRESS = os.getenv("ADDRESS", "0.0.0.0")
 PORT = int(os.getenv("PORT", 5000))
 DEBUG = os.getenv("DEBUG", "True").lower() == "true"
-
 
 # decorator for / path
 @app.route("/", methods=["GET"])
@@ -90,7 +89,7 @@ message = {
         "debug status": DEBUG,
     },
     "system": {
-        "hostname": HOST,
+        "hostname": hostname,
         "platform": platform_name,
         "platform_version": "Ubuntu 24.04",
         "architecture": architecture,
@@ -123,4 +122,4 @@ logging.basicConfig(
 logger.info("Application starting...")
 
 if __name__ == "__main__":
-    app.run()
+    app.run(host=ADDRESS, port=PORT, debug=DEBUG)

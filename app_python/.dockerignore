@@ -1,0 +1,29 @@
+# Python
+__pycache__/
+*.py[cod]
+venv/
+*.log
+.venv/
+
+# Version control
+.git
+.gitignore
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+
+# Secrets
+.env
+*.pem
+secrets/
+
+# Documentation
+*.md
+docs/
+
+# Tests
+tests/

@@ -48,13 +48,12 @@ jobs:
           cache-dependency-path: './app_python/requirements.txt'
       - name: Install dependencies
         run: |
-          pip install -r ./app_python/requirements.txt
-          pip install pytest flake8
+          pip install -r app_python/requirements.txt
+      - name: Install Snyk CLI
+        run: npm install -g snyk
       - name: Run Snyk
-        uses: snyk/actions/python-3.12@master
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
-        with:
-          args: >
-            app_python
+        run: |
+          snyk test app_python \
             --severity-threshold=high

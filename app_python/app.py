@@ -25,6 +25,7 @@ ADDRESS = os.getenv("ADDRESS", "0.0.0.0")
 PORT = int(os.getenv("PORT", 5000))
 DEBUG = os.getenv("DEBUG", "True").lower() == "true"
 
+
 # decorator for / path
 @app.route("/", methods=["GET"])
 def get_endpoint():
@@ -79,6 +80,7 @@ def get_uptime():
     hours = seconds // 3600
     minutes = (seconds % 3600) // 60
     return {"seconds": seconds, "human": f"{hours} hours, {minutes} minutes"}
+
 
 # json message with system and environment info
 message = {

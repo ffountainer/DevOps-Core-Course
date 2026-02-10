@@ -1,8 +1,6 @@
 name: My FLask App Testing
 
 on: [push, pull_request]
-  branches:
-      - '**'
 jobs:
   test:
     runs-on: python:3.13-slim

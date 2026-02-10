@@ -55,7 +55,8 @@ def health():
 
 @app.errorhandler(404)
 def not_found(error):
-    return jsonify({"error": "Not Found", "message": "Endpoint does not exist"}), 404
+    return jsonify({"error": "Not Found",
+                    "message": "Endpoint does not exist"}), 404
 
 
 @app.errorhandler(500)
@@ -119,7 +120,8 @@ message = {
 }
 
 logging.basicConfig(
-    level=logging.DEBUG, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+    level=logging.DEBUG,
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
 )
 
 logger.info("Application starting...")

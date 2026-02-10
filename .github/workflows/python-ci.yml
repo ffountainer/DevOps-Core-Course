@@ -42,9 +42,9 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Run Snyk
+        run: cd ./app_python
         uses: snyk/actions/python-3.10@master
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
         with:
-          context: ./app_python
           args: --severity-threshold=high

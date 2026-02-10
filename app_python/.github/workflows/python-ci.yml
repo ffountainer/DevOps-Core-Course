@@ -1,0 +1,19 @@
+name: My FLask App Testing
+
+on: [push, pull_request]
+jobs:
+  test:
+    runs-on: python:3.13-slim
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt
+          pip install pytest flake8
+      - name: Lint
+        run: flake8 app.py
+      - name: Test
+        run: pytest tests/

@@ -35,8 +35,8 @@ jobs:
           context: ./app_python
           push: true
           tags: |
-            ${{ secrets.DOCKER_USERNAME }}/myapp:latest
-            ${{ secrets.DOCKER_USERNAME }}/myapp:${{ github.sha }}
+            ${{ secrets.DOCKER_USERNAME }}/my-app:latest
+            ${{ secrets.DOCKER_USERNAME }}/my-app:${{ github.sha }}
   security:
     runs-on: ubuntu-latest
     steps:
@@ -46,4 +46,5 @@ jobs:
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
         with:
+          context: ./app_python
           args: --severity-threshold=high

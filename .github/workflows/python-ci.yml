@@ -41,11 +41,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Change directory
-        run: cd ./app_python
       - name: Run Snyk
         uses: snyk/actions/python-3.10@master
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
         with:
           args: --severity-threshold=high
+        run: cd ./app_python

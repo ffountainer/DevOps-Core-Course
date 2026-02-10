@@ -29,7 +29,9 @@ DEBUG = os.getenv("DEBUG", "True").lower() == "true"
 @app.route("/", methods=["GET"])
 def get_endpoint():
     logger.debug(f"Request: {request.method} {request.path}")
-    return jsonify(message=message)
+    response = jsonify(message=message)
+    response.status_code = 200
+    return response
 
 
 # decorator for /health path
@@ -77,7 +79,6 @@ def get_uptime():
     hours = seconds // 3600
     minutes = (seconds % 3600) // 60
     return {"seconds": seconds, "human": f"{hours} hours, {minutes} minutes"}
-
 
 # json message with system and environment info
 message = {

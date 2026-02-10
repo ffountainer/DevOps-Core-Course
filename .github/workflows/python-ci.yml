@@ -40,7 +40,7 @@ jobs:
           push: true
           tags: |
             ${{ secrets.DOCKER_USERNAME }}/my-app:latest
-            ${{ secrets.DOCKER_USERNAME }}/my-app:${{ GITHUB_ENV }}
+            ${{ secrets.DOCKER_USERNAME }}/my-app:${{ env.VERSION }}
             ${{ secrets.DOCKER_USERNAME }}/my-app:${{ github.sha }}
           cache-from: type=gha
           cache-to: type=gha,mode=max

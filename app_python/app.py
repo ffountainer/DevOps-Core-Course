@@ -25,11 +25,14 @@ ADDRESS = os.getenv("ADDRESS", "0.0.0.0")
 PORT = int(os.getenv("PORT", 5000))
 DEBUG = os.getenv("DEBUG", "True").lower() == "true"
 
+
 # decorator for / path
 @app.route("/", methods=["GET"])
 def get_endpoint():
     logger.debug(f"Request: {request.method} {request.path}")
-    return jsonify(message=message)
+    response = jsonify(message=message)
+    response.status_code = 200
+    return response
 
 
 # decorator for /health path
@@ -52,7 +55,8 @@ def health():
 
 @app.errorhandler(404)
 def not_found(error):
-    return jsonify({"error": "Not Found", "message": "Endpoint does not exist"}), 404
+    return jsonify({"error": "Not Found",
+                    "message": "Endpoint does not exist"}), 404
 
 
 @app.errorhandler(500)
@@ -116,7 +120,8 @@ message = {
 }
 
 logging.basicConfig(
-    level=logging.DEBUG, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+    level=logging.DEBUG,
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
 )
 
 logger.info("Application starting...")

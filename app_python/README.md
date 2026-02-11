@@ -67,7 +67,7 @@ docker run -p host-port:container-port image-name:tag
 ```
 Example:
 ```bash
-docker run -p 12345:12345 my-app:1.0.0
+docker run -p 12345:12345 app:1.0.0
 ```
 #### Pulling from Docker Hub ###
 
@@ -77,5 +77,26 @@ docker image pull image-name:image-tag
 
 Example: 
 ```bash
-docker image pull fountainer/my-app:1.0.0
+docker image pull app:1.0.0
+```
+
+### Testing ###
+
+### Workflow Badge
+
+[![My FLask App Testing](https://github.com/ffountainer/DevOps-Core-Course/actions/workflows/python-ci.yml/badge.svg?branch=master)](https://github.com/ffountainer/DevOps-Core-Course/actions/workflows/python-ci.yml)
+
+#### Unit testing ####
+
+To test the ./ endpoint:
+
+```bash
+pytest ./app_python/tests/test_home_endpoint.py
+```
+
+To test the ./health endpoint:
+
+
+```bash
+pytest ./app_python/tests/test_health_endpoint.py
 ```

@@ -79,3 +79,24 @@ Example:
 ```bash
 docker image pull app:1.0.0
 ```
+
+### Testing ###
+
+### Workflow Badge
+
+[![My FLask App Testing](https://github.com/ffountainer/DevOps-Core-Course/actions/workflows/python-ci.yml/badge.svg?branch=master)](https://github.com/ffountainer/DevOps-Core-Course/actions/workflows/python-ci.yml)
+
+#### Unit testing ####
+
+To test the ./ endpoint:
+
+```bash
+pytest ./app_python/tests/test_home_endpoint.py
+```
+
+To test the ./health endpoint:
+
+
+```bash
+pytest ./app_python/tests/test_health_endpoint.py
+```

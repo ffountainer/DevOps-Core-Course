@@ -1,21 +1,20 @@
 # Documentation
 
-### Cloud Provider & Infrastructure
+## Cloud provider and infrastructure
 
-## Task 1 (Terraform implementation)
+### Cloud provider chosen and rationale
 
-### Cloud provider chosen and why
-I chose Yandex Cloud since it provides solid resource provision with a lot of RAM and storage space, also it has a free trial period.
+- I chose Yandex Cloud since it provides solid resource provision with a lot of RAM and storage space, also it has a free trial period.
 
-### Terraform version used
+### Instance type/size and why
 
-Terraform v1.14.5 on darwin_arm64
+- 2 cpu cores and 2 gb of ram because the project is really small and we don't need a lot of resources for it.
 
-### Project structure explanation
+### Region/zone selected
 
-### Key configuration decisions
+- zone ru-central1-a
 
-### Resources created (VM size, region, etc.)
+### Resources created (list all)
 
 - service account
 
@@ -28,6 +27,44 @@ Terraform v1.14.5 on darwin_arm64
 - subnet (zone ru-central1-a)
 
 - security group
+
+## Task 1 (Terraform implementation)
+
+### Terraform version used
+
+Terraform v1.14.5 on darwin_arm64
+
+### Project structure explanation
+
+```
+app_python/
+├── pulumi/
+│   ├── venv/                # Python virtual environment
+│   ├── Pulumi.yaml          # Pulumi project metadata
+│   ├── Pulumi.dev.yaml      # Stack config (gitignored)
+│   ├── requirements.txt     # Python dependencies
+│   ├── __main__.py          # Pulumi infrastructure code
+|   ├── .gitignore           # Ignore state, credentials
+│   └── README.md            # Pulumi setup instructions
+└── terraform/
+    ├── .gitignore           # Ignore state, credentials
+    ├── main.tf              # Main resources
+    ├── variables.tf         # Input variables
+    ├── outputs.tf           # Output values
+    ├── terraform.tfvars     # Variable values (gitignored)
+    └── README.md            # Terraform setup instructions
+```
+
+### Key configuration decisions
+
+- connect with pair of SSH keys
+- configure security group rules
+- expose only necessary ports
+- do not expose credentials
+
+### Challenges encountered
+
+Getting accustomed to the Yandex Cloud wasn't easy, and setting up SSH connection also was a little challanging.
 
 ### Public IP address of created VM
 
@@ -53,11 +90,11 @@ ssh -i /home-directory/.ssh/terraform-vm-key ubuntu@62.84.117.91
 
 ![SSH](./screenshots/lab04-shots/ssh%20output%20terraform.png)
 
-### Challenges encountered
-
 ## Task 2 (Pulumi Implementation)
 
 ### Pulumi version and language used
+
+- pulumi==3.222.0, python
 
 ### Terraform destroy output
 
@@ -65,17 +102,28 @@ ssh -i /home-directory/.ssh/terraform-vm-key ubuntu@62.84.117.91
 
 ### How code differs from Terraform
 
+- Palumi supports many programming language for configuration, while terraform only lets to use its default config language.
+
 ### Advantages you discovered
 
+- It is easier to write in a familiar language in Palumi, but to be honest, I enjoyed writing terraform config more.
+
 ### Challenges encountered
+
+- Had problems with SSH as well, also it wasn't so easy to find documentation and guides.
 
 ### Terminal output
 
 - pulumi preview
 
+![](./screenshots/lab04-shots/pulumi%20preview.png)
+
 - pulumi up
+![](./screenshots/lab04-shots/pulumi%20up.png)
 
 - SSH connection to VM
+
+![](./screenshots/lab04-shots/pulumi%20ssh.png)
 
 ### Public IP of Pulumi-created VM
 
@@ -98,9 +146,49 @@ Current stack outputs (2):
 
 ## Terraform vs Pulumi Comparison
 
+### Ease of Learning: Which was easier to learn and why?
+
+- Documentation for Terraform was easier to find (for me), but Polumi was more familiar to work with. I also felt like Polumni's config is less complex.
+
+### Code Readability: Which is more readable for you?
+
+- Terraform
+
+### Debugging: Which was easier to debug when things went wrong?
+
+- Terraform, plan command was really useful
+
+### Documentation: Which has better docs and examples?
+
+- Terraform
+
+### Use Case: When would you use Terraform? When Pulumi?
+
+- Pulumi is good for projects where you want to employ features that only conplex programming languages can provide. Terraform is good for standardized infrastructure.
+
 ### Code differences (HCL vs Python/TypeScript)
+
+- Terraform uses declarative HCL with blocks and attributes, while Pulumi uses imperative Python/TypeScript with function calls, objects, and full programming language features for resource creation and logic.
 
 ### Which tool you prefer and why
 
+- I liked Terraform more (partially because on this step I was creating a vm in the cloud for the first time, but doing the same with Palumi was quite boring), I like the declarative languages, and they seem to be intuitively understandable.
+
 ## Lab 5 Preparation & Cleanup
+
+### Are you keeping your VM for Lab 5? (Yes/No)
+
+- Yes
+
+### If yes: Which VM (Terraform or Pulumi created)?
+
+- Palumi, but I kind of contemplating on returning to Terraform...
+
+### VM Status
+
+![](./screenshots/lab04-shots/vm%20status.png)
+
+
+
+
 

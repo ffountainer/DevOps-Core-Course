@@ -30,6 +30,10 @@ external_ip_address_vm = "62.84.117.91"
 
 ### SSH connection command
 
+```bash
+ssh -i /home-directory/.ssh/terraform-vm-key ubuntu@62.84.117.91
+```
+
 ### Terminal output from terraform plan and terraform apply
 
 ![Plan](./screenshots/lab04-shots/terraform%20plan.png)
@@ -39,3 +43,6 @@ external_ip_address_vm = "62.84.117.91"
 ![Apply-2](./screenshots/lab04-shots/terraform%20apply-2.png)
 
 ### Proof of SSH access to VM
+
+![SSH](./screenshots/lab04-shots/ssh%20output%20terraform.png)
+

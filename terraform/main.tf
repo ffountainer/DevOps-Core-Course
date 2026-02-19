@@ -8,6 +8,7 @@ terraform {
 }
 
 provider "yandex" {
+  service_account_key_file = "/Users/fountainer/.yandexcloud/my-sa-key.json"
   zone = var.zone
 }
 
@@ -62,7 +63,7 @@ resource "yandex_vpc_security_group" "vm_sg" {
     protocol       = "TCP"
     description    = "SSH"
     port           = 22
-    v4_cidr_blocks = [var.ssh_source_ip]
+    v4_cidr_blocks = ["0.0.0.0/0"]
   }
 
   ingress {

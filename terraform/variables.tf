@@ -3,7 +3,7 @@ variable "zone" {
 }
 
 variable "ssh_key_path" {
-  description = "Path to the public SSH key for VM access"
+  description = "Path to the SSH key for VM access"
 }
 
 variable "ssh_source_ip" {

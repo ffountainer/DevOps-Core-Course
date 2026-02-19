@@ -1,0 +1,6 @@
+encryptionsalt: v1:6N/pIFa804w=:v1:oxkdty/VJnFewwpe:nr5dwf3TCiOIAKyC8rdUJ+SZ7qpi3w==
+config:
+  pulumi-vm:zone: ru-central1-a
+  pulumi-vm:appPort: "1999"
+  pulumi-vm:sshUser: ubuntu
+  pulumi-vm:sshPublicKeyPath: /Users/fountainer/.ssh/terraform-vm-key.pub

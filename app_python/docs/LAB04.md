@@ -79,6 +79,23 @@ ssh -i /home-directory/.ssh/terraform-vm-key ubuntu@62.84.117.91
 
 ### Public IP of Pulumi-created VM
 
+```bash
+(venv) fountainer@Veronicas-MacBook-Air pulumi % pulumi stack output
+
+Enter your passphrase to unlock config/secrets
+    (set PULUMI_CONFIG_PASSPHRASE or PULUMI_CONFIG_PASSPHRASE_FILE to remember):  
+Enter your passphrase to unlock config/secrets
+Current stack outputs (2):
+    OUTPUT       VALUE
+    external_ip  93.77.185.195
+    internal_ip  192.168.10.5
+```
+### SSH connection
+
+(I reused the key from the terraform config)
+
+![](./screenshots/lab04-shots/pulumi%20ssh.png)
+
 ## Terraform vs Pulumi Comparison
 
 ### Code differences (HCL vs Python/TypeScript)

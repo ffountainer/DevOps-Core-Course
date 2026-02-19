@@ -23,34 +23,38 @@ subnet = yandex.VpcSubnet("subnet",
     v4_cidr_blocks=["192.168.10.0/24"]
 )
 
-security_group = yandex.VpcSecurityGroup("vm-sg",
+vm_sg = yandex.VpcSecurityGroup(
+    "vm-sg",
+    description="VM security group",
     network_id=network.id,
-    ingress=[
-        {
-            "protocol": "TCP",
-            "description": "SSH",
-            "port": 22,
-            "v4_cidr_blocks": ["0.0.0.0/0"],
-        },
-        {
-            "protocol": "TCP",
-            "description": "HTTP",
-            "port": 80,
-            "v4_cidr_blocks": ["0.0.0.0/0"],
-        },
-        {
-            "protocol": "TCP",
-            "description": "App port",
-            "port": app_port,
-            "v4_cidr_blocks": ["0.0.0.0/0"],
-        },
+    ingresses=[
+        yandex.VpcSecurityGroupIngressArgs(
+            description="SSH",
+            port=22,
+            protocol="TCP",
+            v4_cidr_blocks=["0.0.0.0/0"],
+        ),
+        yandex.VpcSecurityGroupIngressArgs(
+            description="HTTP",
+            port=80,
+            protocol="TCP",
+            v4_cidr_blocks=["0.0.0.0/0"],
+        ),
+        yandex.VpcSecurityGroupIngressArgs(
+            description="App port",
+            port=1999,
+            protocol="TCP",
+            v4_cidr_blocks=["0.0.0.0/0"],
+        ),
     ],
-    egress=[
-        {
-            "protocol": "ANY",
-            "description": "Allow all outgoing traffic",
-            "v4_cidr_blocks": ["0.0.0.0/0"],
-        }
+    egresses=[
+        yandex.VpcSecurityGroupEgressArgs(
+            description="Allow all outgoing",
+            from_port=0,
+            to_port=0,
+            protocol="ANY",
+            v4_cidr_blocks=["0.0.0.0/0"],
+        )
     ]
 )
 
@@ -75,7 +79,7 @@ vm = yandex.ComputeInstance("vm",
     network_interfaces=[{
         "subnet_id": subnet.id,
         "nat": True,
-        "security_group_ids": [security_group.id],
+        "security_group_ids": [vm_sg.id],
     }],
     metadata={
         "ssh-keys": f"{ssh_user}:{public_key}",

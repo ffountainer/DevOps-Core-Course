@@ -142,6 +142,10 @@ Current stack outputs (2):
 
 (I reused the key from the terraform config)
 
+```bash
+ssh -i ~/.ssh/terraform-vm-key ubuntu@93.77.185.195
+```
+
 ![](./screenshots/lab04-shots/pulumi%20ssh.png)
 
 ## Terraform vs Pulumi Comparison

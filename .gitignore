@@ -1,0 +1,6 @@
+# OS
+.DS_Store
+
+# Vault
+./app_python/ansible/group_vars/all.yml
+~/.vault_pass.txt

@@ -12,12 +12,16 @@ provider "yandex" {
   zone = var.zone
 }
 
+data "yandex_compute_image" "ubuntu_2204" {
+  family = "ubuntu-2204-lts"
+}
+
 resource "yandex_compute_disk" "boot-disk" {
-  name     = "boot-disk"
+  name     = "boot-disk-terraform"
   type     = "network-hdd"
   zone     = var.zone
   size     = "20"
-  image_id = "fd800c7s2p483i648ifv"
+  image_id = data.yandex_compute_image.ubuntu_2204.id
 }
 
 resource "yandex_compute_instance" "vm" {

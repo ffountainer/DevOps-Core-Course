@@ -1,0 +1,51 @@
+---
+
+- name: Show Docker password
+  debug:
+    var: dockerhub_username
+
+- name: Log in to Docker Hub
+  docker_login:
+    username: "{{ dockerhub_username }}"
+    password: "{{ dockerhub_password }}"
+  no_log: true
+
+- name: Pull Docker image
+  docker_image:
+    name: "{{ dockerhub_username }}/{{ app_name }}"
+    tag: "{{ docker_image_tag }}"
+    source: pull
+
+- name: Stop existing container (if running)
+  docker_container:
+    name: "{{ app_container_name }}"
+    state: stopped
+  ignore_errors: true
+
+- name: Remove old container (if exists)
+  docker_container:
+    name: "{{ app_container_name }}"
+    state: absent
+  ignore_errors: true
+
+- name: Run new container
+  docker_container:
+    name: "{{ app_container_name }}"
+    image: "{{ dockerhub_username }}/{{ app_name }}:{{ docker_image_tag }}"
+    state: started
+    restart_policy: "{{ restart_policy }}"
+    published_ports:
+      - "{{ app_port }}:{{ container_port }}"
+    env: "{{ app_env }}"
+  notify: restart app container
+
+- name: Wait for application to be ready
+  wait_for:
+    host: 127.0.0.1
+    port: "{{ app_port }}"
+    timeout: 30
+
+- name: Verify health endpoint
+  uri:
+    url: "http://127.0.0.1:{{ app_port }}/health"
+    status_code: 200

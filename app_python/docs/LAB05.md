@@ -135,9 +135,31 @@ terraform                  : ok=11   changed=0    unreachable=0    failed=0    s
 
 ## Idempotency Demonstration
 
+---
+
 ## Ansible Vault Usage
 
+### How you store credentials securely
+
+### Vault password management strategy
+
+### Example of encrypted file (show it's encrypted!)
+
+### Why Ansible Vault is important
+
+---
+
 ## Deployment Verification
+
+### Terminal output from deploy.yml run
+
+### Container status: docker ps output
+
+### Health check verification: curl outputs
+
+### Handler execution (if any)
+
+---
 
 ## Key Decisions
 

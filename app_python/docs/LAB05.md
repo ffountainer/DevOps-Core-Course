@@ -207,13 +207,75 @@ terraform                  : ok=11   changed=0    unreachable=0    failed=0    s
 
 ### Terminal output from deploy.yml run
 
+```bash
+(devops) fountainer@Veronicas-MacBook-Air ansible % ansible-playbook playbooks/deploy.yml --extra-vars @./group_vars/all.yml
+
+PLAY [Deploy application] ****************************************************************************************************************
+
+TASK [Gathering Facts] *******************************************************************************************************************
+ok: [terraform]
+
+TASK [app_deploy : Show Docker password] *************************************************************************************************
+ok: [terraform] => {
+    "container_port": "12345"
+}
+
+TASK [app_deploy : Log in to Docker Hub] *************************************************************************************************
+ok: [terraform]
+
+TASK [app_deploy : Pull Docker image] ****************************************************************************************************
+ok: [terraform]
+
+TASK [app_deploy : Stop existing container (if running)] *********************************************************************************
+changed: [terraform]
+
+TASK [app_deploy : Remove old container (if exists)] *************************************************************************************
+changed: [terraform]
+
+TASK [app_deploy : Run new container] ****************************************************************************************************
+changed: [terraform]
+
+TASK [app_deploy : Wait for application to be ready] *************************************************************************************
+ok: [terraform]
+
+TASK [app_deploy : Verify health endpoint] ***********************************************************************************************
+ok: [terraform]
+
+RUNNING HANDLER [app_deploy : restart app container] *************************************************************************************
+ok: [terraform]
+
+PLAY RECAP *******************************************************************************************************************************
+terraform                  : ok=10   changed=3    unreachable=0    failed=0    skipped=0    rescued=0    ignored=0   
+
+```
+
 ### Container status: docker ps output
+
+```bash
+Last login: Thu Feb 26 23:56:36 2026 from 45.12.151.45
+ubuntu@fhmebroid75qocec3dc3:~$ docker ps
+CONTAINER ID   IMAGE                      COMMAND           CREATED              STATUS              PORTS                     NAMES
+bf2d264719af   fountainer/my-app:latest   "python app.py"   About a minute ago   Up About a minute   0.0.0.0:8080->12345/tcp   my-app
+ubuntu@fhmebroid75qocec3dc3:~$ 
+```
 
 ### Health check verification: curl outputs
 
+```bash
+ubuntu@fhmebroid75qocec3dc3:~$ curl http://127.0.0.1:8080/health
+{
+  "status": "healthy",
+  "timestamp": "2026-02-26T20:58:46.335570",
+  "uptime_seconds": 134
+}
+```
+
 ### Handler execution (if any)
 
----
+```bash
+RUNNING HANDLER [app_deploy : restart app container] *************************************************************************************
+ok: [terraform]
+```
 
 ## Key Decisions
 

@@ -3,4 +3,4 @@
   docker_container:
     name: "{{ app_container_name }}"
     state: started
-    restart: true
+    restart: false

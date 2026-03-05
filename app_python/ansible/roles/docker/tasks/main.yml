@@ -1,45 +1,63 @@
-- name: Install prerequisites
-  apt:
-    name:
-      - apt-transport-https
-      - ca-certificates
-      - curl
-      - gnupg
-      - lsb-release
-    state: present
-    update_cache: yes
+---
+- name: Docker installation
+  block:
+    - name: Install prerequisites
+      apt:
+        name:
+          - apt-transport-https
+          - ca-certificates
+          - curl
+          - gnupg
+          - lsb-release
+        state: present
+        update_cache: yes
+    - name: Add Docker GPG key
+      apt_key:
+        url: "{{ docker_gpg_url }}"
+        state: present
+    - name: Add Docker APT repository
+      apt_repository:
+        repo: "{{ docker_repo }}"
+        state: present
+        filename: docker
+    - name: Install Docker packages
+      apt:
+        name: "{{ docker_packages }}"
+        state: present
+        update_cache: yes
+      notify: restart docker
+    - name: Install python3-docker for Ansible Docker modules
+      apt:
+        name: python3-docker
+        state: present
+  tags:
+    - docker_install
+  rescue:
+    - name: Wait before retry
+      pause:
+        seconds: 10
+    - name: Retry apt update
+      apt:
+        update_cache: yes
+    - name: Retry adding Docker GPG key
+      apt_key:
+        url: "{{ docker_gpg_url }}"
+        state: present
+  always:
+    - name: ensure docker service is enabled
+      service:
+        name: docker
+        state: started
+        enabled: yes
+  become: true
+- name: Configure docker
+  block:
+    - name: Add user to Docker group
+      user:
+        name: "{{ docker_user }}"
+        groups: docker
+        append: yes
+  tags:
+    - docker_config
+  become: true
 
-- name: Add Docker GPG key
-  apt_key:
-    url: "{{ docker_gpg_url }}"
-    state: present
-
-- name: Add Docker APT repository
-  apt_repository:
-    repo: "{{ docker_repo }}"
-    state: present
-    filename: docker
-
-- name: Install Docker packages
-  apt:
-    name: "{{ docker_packages }}"
-    state: present
-    update_cache: yes
-  notify: restart docker
-
-- name: Ensure Docker service is running
-  service:
-    name: docker
-    state: started
-    enabled: yes
-
-- name: Add user to Docker group
-  user:
-    name: "{{ docker_user }}"
-    groups: docker
-    append: yes
-
-- name: Install python3-docker for Ansible Docker modules
-  apt:
-    name: python3-docker
-    state: present

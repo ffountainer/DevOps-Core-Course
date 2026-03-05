@@ -1,14 +1,43 @@
 ---
-- name: Update apt cache
-  apt:
-    update_cache: yes
-    cache_valid_time: 3600
-
-- name: Install common packages
-  apt:
-    name: "{{ common_packages }}"
-    state: present 
-
+# the first block with package installation tasks
+- name: Install dependencies
+  block:
+    - name: Update apt cache
+      apt:
+        update_cache: yes
+        cache_valid_time: 3600
+    - name: Install common_packages
+      apt:
+        name: "{{ common_packages }}"
+        state: present
+  rescue:
+    - name: Handle installation failure
+      command: apt-get update --fix-missing
+  always:
+    - name: Write log file
+      copy:
+        content: "Common role has finished"
+        dest: /tmp/common.log
+  become: true
+  tags:
+    - packages
+# The second task with user creation
+- name: Manage users
+  block:
+    - name: Create common users
+      user:
+        name: "{{ item }}"
+        state: present
+        create_home: yes
+      loop: "{{ common_users }}"
+  become: true
+  tags:
+    - users
 - name: Ensure timezone is set
-  timezone:
-    name: "Europe/Moscow"
+  block:
+    - name: Set timezome
+      timezone:
+        name: "Europe/Moscow"
+  become: true
+  tags:
+    - timezone

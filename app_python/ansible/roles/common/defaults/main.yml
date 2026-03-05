@@ -6,3 +6,6 @@ common_packages:
   - htop
 
 timezone_name: "Europe/Moscow"
+
+common_users:
+  - ubuntu

@@ -167,12 +167,12 @@ ansible-playbook playbooks/provision.yml --tags "docker_install"
 **Action Required:**
 ```bash
 cd ansible/roles
-mv app_deploy web_app
+mv web_app web_app
 ```
 
 **Update all references:**
-- Playbook imports: `roles/app_deploy` → `roles/web_app`
-- Documentation: app_deploy → web_app
+- Playbook imports: `roles/web_app` → `roles/web_app`
+- Documentation: web_app → web_app
 - Variable prefixes: Consider `web_app_*` for consistency
 
 **Why rename?**
@@ -257,7 +257,7 @@ ansible-playbook playbooks/deploy.yml
 2. Template docker-compose.yml to the directory
 3. Use `docker_compose` module (or `community.docker.docker_compose`)
 4. Ensure idempotency (check if already running)
-5. Add appropriate tags: `app_deploy`, `compose`
+5. Add appropriate tags: `web_app`, `compose`
 
 **Deployment Block Pattern:**
 ```yaml
@@ -278,7 +278,7 @@ ansible-playbook playbooks/deploy.yml
       # Log error, optionally rollback
 
   tags:
-    - app_deploy
+    - web_app
     - compose
 ```
 
@@ -647,7 +647,7 @@ deploy:
         echo "${{ secrets.ANSIBLE_VAULT_PASSWORD }}" > /tmp/vault_pass
         ansible-playbook playbooks/deploy.yml \
           --vault-password-file /tmp/vault_pass \
-          --tags "app_deploy"
+          --tags "web_app"
         rm /tmp/vault_pass
 ```
 

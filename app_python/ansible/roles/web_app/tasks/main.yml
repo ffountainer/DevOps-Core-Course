@@ -1,0 +1,38 @@
+---
+- name: Deploy application with Docker Compose
+  block:
+
+    - name: Create application directory
+      file:
+        path: "{{ compose_project_dir }}"
+        state: directory
+        owner: root
+        group: root
+        mode: '0755'
+
+    - name: Template docker-compose.yml
+      template:
+        src: docker-compose.yml.j2
+        dest: "{{ compose_project_dir }}/docker-compose.yml"
+
+    - name: Deploy with Docker Compose
+      community.docker.docker_compose_v2:
+        project_src: "{{ compose_project_dir }}"
+        pull: missing
+        state: present
+        recreate: auto
+
+  rescue:
+    - name: Handle deployment failure
+      debug:
+        msg: "Docker Compose deployment failed. Check logs and network."
+
+  always:
+    - name: Log deployment attempt
+      copy:
+        content: "Docker Compose deployment attempted on {{ ansible_date_time.iso8601 }}"
+        dest: "/tmp/{{ app_name }}-compose.log"
+
+  tags:
+    - app_deploy
+    - compose

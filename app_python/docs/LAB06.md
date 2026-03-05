@@ -74,6 +74,150 @@ playbook: playbooks/provision.yml
 
 ## Docker Compose Migration (Template structure, role dependencies, before/after comparison)
 
+### First run
+
+```bash
+(devops) fountainer@Veronicas-MacBook-Air ansible % ansible-playbook playbooks/deploy.yml --extra-vars @./group_vars/all.yml
+
+PLAY [Deploy application] *****************************************************************************************************************************************
+
+TASK [Gathering Facts] ********************************************************************************************************************************************
+ok: [terraform]
+
+TASK [docker : Install prerequisites] *****************************************************************************************************************************
+ok: [terraform]
+
+TASK [docker : Add Docker GPG key] ********************************************************************************************************************************
+ok: [terraform]
+
+TASK [docker : Add Docker APT repository] *************************************************************************************************************************
+[WARNING]: Deprecation warnings can be disabled by setting `deprecation_warnings=False` in ansible.cfg.
+[DEPRECATION WARNING]: INJECT_FACTS_AS_VARS default to `True` is deprecated, top-level facts will not be auto injected after the change. This feature will be removed from ansible-core version 2.24.
+Origin: /Users/fountainer/uni/devops/DevOps-Core-Course/app_python/ansible/roles/docker/defaults/main.yml:7:14
+
+5 docker_user: "ubuntu"
+6 docker_gpg_url: "https://download.docker.com/linux/ubuntu/gpg"
+7 docker_repo: "deb [arch=amd64] https://download.docker.com/linux/ubuntu {{ ansible_distribution_release }} stable"
+               ^ column 14
+
+Use `ansible_facts["fact_name"]` (no `ansible_` prefix) instead.
+
+ok: [terraform]
+
+TASK [docker : Install Docker packages] ***************************************************************************************************************************
+ok: [terraform]
+
+TASK [docker : Install python3-docker for Ansible Docker modules] *************************************************************************************************
+ok: [terraform]
+
+TASK [docker : ensure docker service is enabled] ******************************************************************************************************************
+ok: [terraform]
+
+TASK [docker : Add user to Docker group] **************************************************************************************************************************
+ok: [terraform]
+
+TASK [web_app : Create application directory] *********************************************************************************************************************
+ok: [terraform]
+
+TASK [web_app : Template docker-compose.yml] **********************************************************************************************************************
+changed: [terraform]
+
+TASK [web_app : Deploy with Docker Compose] ***********************************************************************************************************************
+[WARNING]: Docker compose: unknown None: /opt/my-app/docker-compose.yml: the attribute `version` is obsolete, it will be ignored, please remove it to avoid potential confusion
+changed: [terraform]
+
+TASK [web_app : Log deployment attempt] ***************************************************************************************************************************
+[DEPRECATION WARNING]: INJECT_FACTS_AS_VARS default to `True` is deprecated, top-level facts will not be auto injected after the change. This feature will be removed from ansible-core version 2.24.
+Origin: /Users/fountainer/uni/devops/DevOps-Core-Course/app_python/ansible/roles/web_app/tasks/main.yml:33:18
+
+31     - name: Log deployment attempt
+32       copy:
+33         content: "Docker Compose deployment attempted on {{ ansible_date_time.iso8601 }}"
+                    ^ column 18
+
+Use `ansible_facts["fact_name"]` (no `ansible_` prefix) instead.
+
+changed: [terraform]
+
+PLAY RECAP ********************************************************************************************************************************************************
+terraform                  : ok=12   changed=3    unreachable=0    failed=0    skipped=0    rescued=0    ignored=0 
+```
+
+### Second run removed "changed" status of some fields (not with the current time)
+
+```bash
+TASK [web_app : Template docker-compose.yml] **********************************************************************************************************************
+ok: [terraform]
+
+TASK [web_app : Deploy with Docker Compose] ***********************************************************************************************************************
+[WARNING]: Docker compose: unknown None: /opt/my-app/docker-compose.yml: the attribute `version` is obsolete, it will be ignored, please remove it to avoid potential confusion
+ok: [terraform]
+```
+
+clear
+### Verifying on target VM
+
+```bash
+ubuntu@fhmebroid75qocec3dc3:~$ docker ps
+CONTAINER ID   IMAGE                      COMMAND           CREATED          STATUS          PORTS                                           NAMES
+7c279d0b3c18   fountainer/my-app:latest   "python app.py"   10 minutes ago   Up 10 minutes   0.0.0.0:1999->12345/tcp, [::]:1999->12345/tcp   my-app-my-app-1
+0a0701a21e3a   9582a1fe4631               "python app.py"   25 hours ago     Up 25 hours     0.0.0.0:8080->12345/tcp                         my-app
+ubuntu@fhmebroid75qocec3dc3:~$ curl http://localhost:1999
+{
+  "message": {
+    "endpoints": [
+      {
+        "description": "Service information",
+        "method": "GET",
+        "path": "/"
+      },
+      {
+        "description": "Health check",
+        "method": "GET",
+        "path": "/health"
+      }
+    ],
+    "request": {
+      "client_ip": "127.0.0.1",
+      "method": "GET",
+      "path": "/",
+      "port": 12345,
+      "user_agent": "curl/7.81.0"
+    },
+    "runtime": {
+      "current_time": "2026-01-07T14:30:00.000Z",
+      "timezone": "UTC",
+      "uptime_human": "1 hour, 0 minutes",
+      "uptime_seconds": {
+        "human": "0 hours, 0 minutes",
+        "seconds": 0
+      }
+    },
+    "service": {
+      "debug status": true,
+      "description": "DevOps course info service",
+      "framework": "Flask",
+      "name": "devops-info-service",
+      "version": "1.0.0"
+    },
+    "system": {
+      "architecture": "x86_64",
+      "cpu_count": 8,
+      "hostname": "7c279d0b3c18",
+      "platform": "Linux",
+      "platform_version": "Ubuntu 24.04",
+      "python_version": "3.13.12"
+    }
+  }
+}
+ubuntu@fhmebroid75qocec3dc3:~$ 
+```
+
+
+
+
+
+
 ## Wipe Logic (Implementation details, variable + tag approach, test results)
 
 ## CI/CD Integration (Workflow architecture, setup steps, evidence of automated deployments)

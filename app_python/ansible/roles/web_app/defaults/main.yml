@@ -1,0 +1,9 @@
+---
+container_port: "12345"
+restart_policy: unless-stopped
+compose_project_dir: "/opt/{{ app_name }}"
+docker_image: "{{ dockerhub_username }}/{{ app_name }}"
+docker_tag: latest
+
+app_env:
+  PORT: "{{ container_port }}"

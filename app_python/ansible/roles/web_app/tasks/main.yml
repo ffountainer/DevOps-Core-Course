@@ -1,6 +1,10 @@
 ---
 - name: Deploy application with Docker Compose
   block:
+    - name: Include wipe tasks
+      include_tasks: wipe.yml
+      tags:
+        - web_app_wipe
 
     - name: Create application directory
       file:

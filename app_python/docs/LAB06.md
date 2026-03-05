@@ -213,12 +213,315 @@ ubuntu@fhmebroid75qocec3dc3:~$ curl http://localhost:1999
 ubuntu@fhmebroid75qocec3dc3:~$ 
 ```
 
-
-
-
-
-
 ## Wipe Logic (Implementation details, variable + tag approach, test results)
+
+### Scenario 1: Normal deployment (wipe should NOT run)
+
+```bash
+(devops) fountainer@Veronicas-MacBook-Air ansible % ansible-playbook playbooks/deploy.yml --extra-vars @./group_vars/all.yml
+
+PLAY [Deploy application] *****************************************************************************************************************************************
+
+TASK [Gathering Facts] ********************************************************************************************************************************************
+ok: [terraform]
+
+TASK [docker : Install prerequisites] *****************************************************************************************************************************
+ok: [terraform]
+
+TASK [docker : Add Docker GPG key] ********************************************************************************************************************************
+ok: [terraform]
+
+TASK [docker : Add Docker APT repository] *************************************************************************************************************************
+[WARNING]: Deprecation warnings can be disabled by setting `deprecation_warnings=False` in ansible.cfg.
+[DEPRECATION WARNING]: INJECT_FACTS_AS_VARS default to `True` is deprecated, top-level facts will not be auto injected after the change. This feature will be removed from ansible-core version 2.24.
+Origin: /Users/fountainer/uni/devops/DevOps-Core-Course/app_python/ansible/roles/docker/defaults/main.yml:7:14
+
+5 docker_user: "ubuntu"
+6 docker_gpg_url: "https://download.docker.com/linux/ubuntu/gpg"
+7 docker_repo: "deb [arch=amd64] https://download.docker.com/linux/ubuntu {{ ansible_distribution_release }} stable"
+               ^ column 14
+
+Use `ansible_facts["fact_name"]` (no `ansible_` prefix) instead.
+
+ok: [terraform]
+
+TASK [docker : Install Docker packages] ***************************************************************************************************************************
+ok: [terraform]
+
+TASK [docker : Install python3-docker for Ansible Docker modules] *************************************************************************************************
+ok: [terraform]
+
+TASK [docker : ensure docker service is enabled] ******************************************************************************************************************
+ok: [terraform]
+
+TASK [docker : Add user to Docker group] **************************************************************************************************************************
+ok: [terraform]
+
+TASK [web_app : Create application directory] *********************************************************************************************************************
+ok: [terraform]
+
+TASK [web_app : Template docker-compose.yml] **********************************************************************************************************************
+ok: [terraform]
+
+TASK [web_app : Include wipe tasks] *******************************************************************************************************************************
+included: /Users/fountainer/uni/devops/DevOps-Core-Course/app_python/ansible/roles/web_app/tasks/wipe.yml for terraform
+
+TASK [web_app : Stop and remove containers] ***********************************************************************************************************************
+skipping: [terraform]
+
+TASK [web_app : Remove docker-compose file] ***********************************************************************************************************************
+skipping: [terraform]
+
+TASK [web_app : Remove application directory] *********************************************************************************************************************
+skipping: [terraform]
+
+TASK [web_app : Log wipe completion] ******************************************************************************************************************************
+skipping: [terraform]
+
+TASK [web_app : Deploy with Docker Compose] ***********************************************************************************************************************
+[WARNING]: Docker compose: unknown None: /opt/my-app/docker-compose.yml: the attribute `version` is obsolete, it will be ignored, please remove it to avoid potential confusion
+ok: [terraform]
+
+TASK [web_app : Log deployment attempt] ***************************************************************************************************************************
+[DEPRECATION WARNING]: INJECT_FACTS_AS_VARS default to `True` is deprecated, top-level facts will not be auto injected after the change. This feature will be removed from ansible-core version 2.24.
+Origin: /Users/fountainer/uni/devops/DevOps-Core-Course/app_python/ansible/roles/web_app/tasks/main.yml:38:18
+
+36     - name: Log deployment attempt
+37       copy:
+38         content: "Docker Compose deployment attempted on {{ ansible_date_time.iso8601 }}"
+                    ^ column 18
+
+Use `ansible_facts["fact_name"]` (no `ansible_` prefix) instead.
+
+changed: [terraform]
+
+PLAY RECAP ********************************************************************************************************************************************************
+terraform                  : ok=13   changed=1    unreachable=0    failed=0    skipped=4    rescued=0    ignored=0   
+
+(devops) fountainer@Veronicas-MacBook-Air ansible % 
+```
+
+```bash
+(devops) fountainer@Veronicas-MacBook-Air ansible % ssh ubuntu@93.77.181.173 "docker ps"
+CONTAINER ID   IMAGE                      COMMAND           CREATED          STATUS          PORTS                                           NAMES
+7c279d0b3c18   fountainer/my-app:latest   "python app.py"   21 minutes ago   Up 21 minutes   0.0.0.0:1999->12345/tcp, [::]:1999->12345/tcp   my-app-my-app-1
+0a0701a21e3a   9582a1fe4631               "python app.py"   25 hours ago     Up 25 hours     0.0.0.0:8080->12345/tcp                         my-app
+(devops) fountainer@Veronicas-MacBook-Air ansible % 
+```
+
+### Scenario 2: Wipe only (remove existing deployment)
+
+```bash
+(devops) fountainer@Veronicas-MacBook-Air ansible % ansible-playbook playbooks/deploy.yml -e "web_app_wipe=true" --tags web_app_wipe --extra-vars @./group_vars/all.yml
+
+PLAY [Deploy application] *****************************************************************************************************************************************
+
+TASK [Gathering Facts] ********************************************************************************************************************************************
+ok: [terraform]
+
+TASK [web_app : Include wipe tasks] *******************************************************************************************************************************
+included: /Users/fountainer/uni/devops/DevOps-Core-Course/app_python/ansible/roles/web_app/tasks/wipe.yml for terraform
+
+TASK [web_app : Stop and remove containers] ***********************************************************************************************************************
+[ERROR]: Task failed: Module failed: "/opt/my-app" is not a directory
+Origin: /Users/fountainer/uni/devops/DevOps-Core-Course/app_python/ansible/roles/web_app/tasks/wipe.yml:5:7
+
+3   block:
+4
+5     - name: Stop and remove containers
+        ^ column 7
+
+fatal: [terraform]: FAILED! => {"changed": false, "msg": "\"/opt/my-app\" is not a directory"}
+...ignoring
+
+TASK [web_app : Remove docker-compose file] ***********************************************************************************************************************
+ok: [terraform]
+
+TASK [web_app : Remove application directory] *********************************************************************************************************************
+ok: [terraform]
+
+TASK [web_app : Log wipe completion] ******************************************************************************************************************************
+ok: [terraform] => {
+    "msg": "Application my-app wiped successfully"
+}
+
+PLAY RECAP ********************************************************************************************************************************************************
+terraform                  : ok=6    changed=0    unreachable=0    failed=0    skipped=0    rescued=0    ignored=1   
+```
+
+```bash
+(devops) fountainer@Veronicas-MacBook-Air ansible % ssh ubuntu@93.77.181.173 "docker ps"               
+CONTAINER ID   IMAGE     COMMAND   CREATED   STATUS    PORTS     NAMES
+(devops) fountainer@Veronicas-MacBook-Air ansible % ssh ubuntu@93.77.181.173 "ls /opt"                 
+containerd
+(devops) fountainer@Veronicas-MacBook-Air ansible %
+```
+
+### Scenario 3: Clean reinstallation (wipe → deploy)
+
+```bash
+(devops) fountainer@Veronicas-MacBook-Air ansible % ansible-playbook playbooks/deploy.yml -e "web_app_wipe=true" --extra-vars @./group_vars/all.yml
+
+PLAY [Deploy application] *****************************************************************************************************************************************
+
+TASK [Gathering Facts] ********************************************************************************************************************************************
+ok: [terraform]
+
+TASK [docker : Install prerequisites] *****************************************************************************************************************************
+ok: [terraform]
+
+TASK [docker : Add Docker GPG key] ********************************************************************************************************************************
+ok: [terraform]
+
+TASK [docker : Add Docker APT repository] *************************************************************************************************************************
+[WARNING]: Deprecation warnings can be disabled by setting `deprecation_warnings=False` in ansible.cfg.
+[DEPRECATION WARNING]: INJECT_FACTS_AS_VARS default to `True` is deprecated, top-level facts will not be auto injected after the change. This feature will be removed from ansible-core version 2.24.
+Origin: /Users/fountainer/uni/devops/DevOps-Core-Course/app_python/ansible/roles/docker/defaults/main.yml:7:14
+
+5 docker_user: "ubuntu"
+6 docker_gpg_url: "https://download.docker.com/linux/ubuntu/gpg"
+7 docker_repo: "deb [arch=amd64] https://download.docker.com/linux/ubuntu {{ ansible_distribution_release }} stable"
+               ^ column 14
+
+Use `ansible_facts["fact_name"]` (no `ansible_` prefix) instead.
+
+ok: [terraform]
+
+TASK [docker : Install Docker packages] ***************************************************************************************************************************
+ok: [terraform]
+
+TASK [docker : Install python3-docker for Ansible Docker modules] *************************************************************************************************
+ok: [terraform]
+
+TASK [docker : ensure docker service is enabled] ******************************************************************************************************************
+ok: [terraform]
+
+TASK [docker : Add user to Docker group] **************************************************************************************************************************
+ok: [terraform]
+
+TASK [web_app : Include wipe tasks] *******************************************************************************************************************************
+included: /Users/fountainer/uni/devops/DevOps-Core-Course/app_python/ansible/roles/web_app/tasks/wipe.yml for terraform
+
+TASK [web_app : Stop and remove containers] ***********************************************************************************************************************
+[ERROR]: Task failed: Module failed: "/opt/my-app" is not a directory
+Origin: /Users/fountainer/uni/devops/DevOps-Core-Course/app_python/ansible/roles/web_app/tasks/wipe.yml:5:7
+
+3   block:
+4
+5     - name: Stop and remove containers
+        ^ column 7
+
+fatal: [terraform]: FAILED! => {"changed": false, "msg": "\"/opt/my-app\" is not a directory"}
+...ignoring
+
+TASK [web_app : Remove docker-compose file] ***********************************************************************************************************************
+ok: [terraform]
+
+TASK [web_app : Remove application directory] *********************************************************************************************************************
+ok: [terraform]
+
+TASK [web_app : Log wipe completion] ******************************************************************************************************************************
+ok: [terraform] => {
+    "msg": "Application my-app wiped successfully"
+}
+
+TASK [web_app : Create application directory] *********************************************************************************************************************
+changed: [terraform]
+
+TASK [web_app : Template docker-compose.yml] **********************************************************************************************************************
+changed: [terraform]
+
+TASK [web_app : Deploy with Docker Compose] ***********************************************************************************************************************
+[WARNING]: Docker compose: unknown None: /opt/my-app/docker-compose.yml: the attribute `version` is obsolete, it will be ignored, please remove it to avoid potential confusion
+changed: [terraform]
+
+TASK [web_app : Log deployment attempt] ***************************************************************************************************************************
+[DEPRECATION WARNING]: INJECT_FACTS_AS_VARS default to `True` is deprecated, top-level facts will not be auto injected after the change. This feature will be removed from ansible-core version 2.24.
+Origin: /Users/fountainer/uni/devops/DevOps-Core-Course/app_python/ansible/roles/web_app/tasks/main.yml:37:18
+
+35     - name: Log deployment attempt
+36       copy:
+37         content: "Docker Compose deployment attempted on {{ ansible_date_time.iso8601 }}"
+                    ^ column 18
+
+Use `ansible_facts["fact_name"]` (no `ansible_` prefix) instead.
+
+changed: [terraform]
+
+PLAY RECAP ********************************************************************************************************************************************************
+terraform                  : ok=17   changed=4    unreachable=0    failed=0    skipped=0    rescued=0    ignored=1 
+```
+
+```bash
+(devops) fountainer@Veronicas-MacBook-Air ansible % ssh ubuntu@93.77.181.173 "docker ps"               
+CONTAINER ID   IMAGE                      COMMAND           CREATED          STATUS          PORTS                                           NAMES
+167ea730bdc1   fountainer/my-app:latest   "python app.py"   20 seconds ago   Up 19 seconds   0.0.0.0:1999->12345/tcp, [::]:1999->12345/tcp   my-app-my-app-1
+```
+### Safety checks (should NOT wipe)
+
+```bash
+(devops) fountainer@Veronicas-MacBook-Air ansible % ansible-playbook playbooks/deploy.yml --tags web_app_wipe --extra-vars @./group_vars/all.yml
+
+PLAY [Deploy application] *****************************************************************************************************************************************
+
+TASK [Gathering Facts] ********************************************************************************************************************************************
+ok: [terraform]
+
+TASK [web_app : Include wipe tasks] *******************************************************************************************************************************
+included: /Users/fountainer/uni/devops/DevOps-Core-Course/app_python/ansible/roles/web_app/tasks/wipe.yml for terraform
+
+TASK [web_app : Stop and remove containers] ***********************************************************************************************************************
+skipping: [terraform]
+
+TASK [web_app : Remove docker-compose file] ***********************************************************************************************************************
+skipping: [terraform]
+
+TASK [web_app : Remove application directory] *********************************************************************************************************************
+skipping: [terraform]
+
+TASK [web_app : Log wipe completion] ******************************************************************************************************************************
+skipping: [terraform]
+
+PLAY RECAP ********************************************************************************************************************************************************
+terraform                  : ok=2    changed=0    unreachable=0    failed=0    skipped=4    rescued=0    ignored=0   
+
+(devops) fountainer@Veronicas-MacBook-Air ansible % 
+```
+
+```bash
+(devops) fountainer@Veronicas-MacBook-Air ansible % ansible-playbook playbooks/deploy.yml -e "web_app_wipe=true" --tags web_app_wipe --extra-vars @./group_vars/all.yml
+
+PLAY [Deploy application] *****************************************************************************************************************************************
+
+TASK [Gathering Facts] ********************************************************************************************************************************************
+ok: [terraform]
+
+TASK [web_app : Include wipe tasks] *******************************************************************************************************************************
+included: /Users/fountainer/uni/devops/DevOps-Core-Course/app_python/ansible/roles/web_app/tasks/wipe.yml for terraform
+
+TASK [web_app : Stop and remove containers] ***********************************************************************************************************************
+[WARNING]: Docker compose: unknown None: /opt/my-app/docker-compose.yml: the attribute `version` is obsolete, it will be ignored, please remove it to avoid potential confusion
+changed: [terraform]
+
+TASK [web_app : Remove docker-compose file] ***********************************************************************************************************************
+changed: [terraform]
+
+TASK [web_app : Remove application directory] *********************************************************************************************************************
+changed: [terraform]
+
+TASK [web_app : Log wipe completion] ******************************************************************************************************************************
+ok: [terraform] => {
+    "msg": "Application my-app wiped successfully"
+}
+
+PLAY RECAP ********************************************************************************************************************************************************
+terraform                  : ok=6    changed=3    unreachable=0    failed=0    skipped=0    rescued=0    ignored=0
+```
+
+### App running after complete reinstall
+
+![](./screenshots/lab06-shots/app%20running%20after%20clean%20reinstall.png)
+
 
 ## CI/CD Integration (Workflow architecture, setup steps, evidence of automated deployments)
 

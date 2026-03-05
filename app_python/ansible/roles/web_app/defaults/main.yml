@@ -7,3 +7,11 @@ docker_tag: latest
 
 app_env:
   PORT: "{{ container_port }}"
+
+# Wipe Logic Control
+web_app_wipe: false  # Default: do not wipe
+
+# Usage documentation:
+# Set to true to remove application completely
+# Wipe only:    ansible-playbook deploy.yml -e "web_app_wipe=true" --tags web_app_wipe
+# Clean install: ansible-playbook deploy.yml -e "web_app_wipe=true"

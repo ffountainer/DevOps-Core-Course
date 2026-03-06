@@ -1,8 +1,11 @@
 ---
 - name: Docker installation
+  tags:
+    - docker_install
+  become: true
   block:
     - name: Install prerequisites
-      apt:
+      ansible.builtin.apt:
         name:
           - apt-transport-https
           - ca-certificates
@@ -10,56 +13,53 @@
           - gnupg
           - lsb-release
         state: present
-        update_cache: yes
-        force_apt_get: yes
+        update_cache: true
+        force_apt_get: true
     - name: Add Docker GPG key
-      apt_key:
+      ansible.builtin.apt_key:
         url: "{{ docker_gpg_url }}"
         state: present
     - name: Add Docker APT repository
-      apt_repository:
+      ansible.builtin.apt_repository:
         repo: "{{ docker_repo }}"
         state: present
         filename: docker
     - name: Install Docker packages
-      apt:
+      ansible.builtin.apt:
         name: "{{ docker_packages }}"
         state: present
-        update_cache: yes
-        force_apt_get: yes
+        update_cache: true
+        force_apt_get: true
       notify: restart docker
     - name: Install python3-docker for Ansible Docker modules
-      apt:
+      ansible.builtin.apt:
         name: python3-docker
         state: present
-  tags:
-    - docker_install
   rescue:
     - name: Wait before retry
-      pause:
+      ansible.builtin.pause:
         seconds: 10
     - name: Retry apt update
-      apt:
-        update_cache: yes
+      ansible.builtin.apt:
+        update_cache: true
     - name: Retry adding Docker GPG key
-      apt_key:
+      ansible.builtin.apt_key:
         url: "{{ docker_gpg_url }}"
         state: present
   always:
-    - name: ensure docker service is enabled
-      service:
+    - name: Ensure docker service is enabled
+      ansible.builtin.service:
         name: docker
         state: started
-        enabled: yes
-  become: true
+        enabled: true
 - name: Configure docker
-  block:
-    - name: Add user to Docker group
-      user:
-        name: "{{ docker_user }}"
-        groups: docker
-        append: yes
   tags:
     - docker_config
   become: true
 
+  block:
+    - name: Add user to Docker group
+      ansible.builtin.user:
+        name: "{{ docker_user }}"
+        groups: docker
+        append: true

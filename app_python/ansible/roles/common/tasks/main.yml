@@ -1,43 +1,46 @@
 ---
 # the first block with package installation tasks
 - name: Install dependencies
-  block:
-    - name: Update apt cache
-      apt:
-        update_cache: yes
-        cache_valid_time: 3600
-    - name: Install common_packages
-      apt:
-        name: "{{ common_packages }}"
-        state: present
-  rescue:
-    - name: Handle installation failure
-      command: apt-get update --fix-missing
-  always:
-    - name: Write log file
-      copy:
-        content: "Common role has finished"
-        dest: /tmp/common.log
   become: true
   tags:
     - packages
-# The second task with user creation
-- name: Manage users
   block:
-    - name: Create common users
-      user:
-        name: "{{ item }}"
+    - name: Update apt cache
+      ansible.builtin.apt:
+        update_cache: true
+        cache_valid_time: 3600
+    - name: Install common_packages
+      ansible.builtin.apt:
+        name: "{{ common_packages }}"
         state: present
-        create_home: yes
-      loop: "{{ common_users }}"
+  # The second task with user creation
+  rescue:
+    - name: Handle installation failure
+      ansible.builtin.apt:
+        update_cache: true
+        force_apt_get: true
+  always:
+    - name: Write log file
+      ansible.builtin.copy:
+        content: "Common role has finished"
+        dest: /tmp/common.log
+        mode: "0644"
+- name: Manage users
   become: true
   tags:
     - users
-- name: Ensure timezone is set
   block:
-    - name: Set timezome
-      timezone:
-        name: "Europe/Moscow"
+    - name: Create common users
+      ansible.builtin.user:
+        name: "{{ item }}"
+        state: present
+        create_home: true
+      loop: "{{ common_users }}"
+- name: Ensure timezone is set
   become: true
   tags:
     - timezone
+  block:
+    - name: Set timezome
+      community.general.timezone:
+        name: "{{ common_timezone_name }}"

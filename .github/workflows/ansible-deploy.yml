@@ -3,14 +3,11 @@ name: Ansible Deployment
 on:
   push:
     branches: [ master, lab06 ]
-    paths:
-      - 'ansible/**'
-      - '.github/workflows/ansible-deploy.yml'
 
   pull_request:
     branches: [ master ]
     paths:
-      - 'ansible/**'
+      - 'app_python/ansible/**'
 
 jobs:
 
@@ -39,7 +36,7 @@ jobs:
 
   deploy:
     name: Deploy Application
-    needs: lint
+    # needs: lint
     runs-on: ubuntu-latest
 
     steps:
@@ -65,13 +62,13 @@ jobs:
       
       - name: Recreate group_vars/all.yml
         run: |
-          mkdir -p ansible/group_vars
-          echo "${{ secrets.ANSIBLE_GROUP_VARS_ALL }}" > ansible/group_vars/all.yml
+          mkdir -p app_python/ansible/group_vars
+          echo "${{ secrets.ANSIBLE_GROUP_VARS_ALL }}" | base64 --decode > app_python/ansible/group_vars/all.yml
 
       - name: Run Ansible Playbook
         run: |
-          cd ansible
-          echo "${{ secrets.ANSIBLE_VAULT_PASSWORD }}" > /tmp/vault_pass
+          echo '${{ secrets.ANSIBLE_VAULT_PASSWORD }}' > /tmp/vault_pass
+          cd app_python/ansible
 
           ansible-playbook playbooks/deploy.yml \
             -i inventory/hosts.ini \

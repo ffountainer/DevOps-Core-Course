@@ -2,7 +2,7 @@ version: '{{ docker_compose_version }}'
 
 services:
   {{ app_name }}:
-    image: {{ docker_image }}:{{ docker_tag }}
+    image: {{ web_app_docker_image }}:{{ web_app_docker_tag }}
 
     ports:
       - "{{ app_port }}:{{ app_internal_port }}"
@@ -10,7 +10,7 @@ services:
     restart: unless-stopped
 
     environment:
-{% for key, value in app_env.items() %}
+{% for key, value in web_app_env.items() %}
       {{ key }}: "{{ value }}"
 {% endfor %}
 

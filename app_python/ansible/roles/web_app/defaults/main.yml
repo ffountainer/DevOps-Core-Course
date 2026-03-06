@@ -1,15 +1,15 @@
 ---
-container_port: "12345"
-restart_policy: unless-stopped
-compose_project_dir: "/opt/{{ app_name }}"
-docker_image: "{{ dockerhub_username }}/{{ app_name }}"
-docker_tag: latest
+web_app_container_port: "12345"
+web_app_restart_policy: unless-stopped
+web_app_compose_project_dir: "/opt/{{ app_name }}"
+web_app_docker_image: "{{ dockerhub_username }}/{{ app_name }}"
+web_app_docker_tag: latest
 
-app_env:
-  PORT: "{{ container_port }}"
+web_app_env:
+  PORT: "{{ web_app_container_port }}"
 
 # Wipe Logic Control
-web_app_wipe: false  # Default: do not wipe
+web_app_wipe: false # Default: do not wipe
 
 # Usage documentation:
 # Set to true to remove application completely

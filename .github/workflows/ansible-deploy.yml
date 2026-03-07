@@ -57,7 +57,7 @@ jobs:
         run: |
           mkdir -p ~/.ssh
           echo Store the private key
-          printf "%s" "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/terraform-vm-key
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" | base64 --decode > ~/.ssh/terraform-vm-key
           chmod 600 ~/.ssh/terraform-vm-key
           echo check key validity
           ssh-keygen -y -f ~/.ssh/terraform-vm-key

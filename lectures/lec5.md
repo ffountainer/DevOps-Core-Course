@@ -478,7 +478,7 @@ docker_log_max_size: "10m"
   roles:
     - common      # 📦 Install common packages
     - docker      # 🐳 Install Docker
-    - app_deploy  # 🚀 Deploy application
+    - web_app  # 🚀 Deploy application
 ```
 
 **🎯 Clean and simple!**
@@ -487,7 +487,7 @@ docker_log_max_size: "10m"
 flowchart LR
   Playbook[📝 Playbook] --> Common[📦 common]
   Playbook --> Docker[🐳 docker]
-  Playbook --> App[🚀 app_deploy]
+  Playbook --> App[🚀 web_app]
   Common --> Result[✅ Configured Server]
   Docker --> Result
   App --> Result

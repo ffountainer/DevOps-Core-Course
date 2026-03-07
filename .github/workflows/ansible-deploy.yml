@@ -1,0 +1,90 @@
+name: Ansible Deployment
+
+on:
+  push:
+    branches: [ master, lab06 ]
+
+  pull_request:
+    branches: [ master ]
+    paths:
+      - 'app_python/ansible/**'
+
+jobs:
+
+  lint:
+    name: Ansible Lint
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install dependencies
+        run: |
+          pip install ansible ansible-lint
+
+      - name: Run ansible-lint
+        run: |
+          cd app_python/ansible
+          ansible-lint playbooks/*.yml
+
+
+  deploy:
+    name: Deploy Application
+    needs: lint
+    runs-on: ubuntu-latest
+
+    steps:
+
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install Ansible
+        run: |
+          pip install ansible
+
+      - name: Setup SSH
+        run: |
+          mkdir -p ~/.ssh
+          echo Store the private key
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/terraform-vm-key
+          chmod 600 ~/.ssh/terraform-vm-key
+          echo check key validity
+          ssh-keygen -y -f ~/.ssh/terraform-vm-key
+          echo Append vm ip to known hosts
+          ssh-keyscan "${{ secrets.VM_HOST }}" >> ~/.ssh/known_hosts
+      
+      - name: Recreate group_vars/all.yml
+        run: |
+          mkdir -p app_python/ansible/group_vars
+          echo "${{ secrets.ANSIBLE_GROUP_VARS_ALL }}" | base64 --decode > app_python/ansible/group_vars/all.yml
+
+      - name: Run Ansible Playbook
+        run: |
+          ssh -i ~/.ssh/terraform-vm-key ubuntu@${{ secrets.VM_HOST }} "echo connected"
+
+          echo '${{ secrets.ANSIBLE_VAULT_PASSWORD }}' > /tmp/vault_pass
+          cd app_python/ansible
+
+          ansible-playbook playbooks/deploy.yml \
+            -i inventory/hosts.ini \
+            --vault-password-file /tmp/vault_pass \
+            --extra-vars @./group_vars/all.yml
+
+          rm /tmp/vault_pass
+
+      - name: Verify Deployment
+        run: |
+          sleep 10
+          curl -f http://${{ secrets.VM_HOST }}:1999 || exit 1
+          curl -f http://${{ secrets.VM_HOST }}:1999/health || exit 1

@@ -288,7 +288,7 @@ ansible-playbook site.yml --list-tags
         name: "{{ app_name }}"
         state: started
   tags:
-    - app_deploy
+    - web_app
     - deploy
 
 - name: Application wipe

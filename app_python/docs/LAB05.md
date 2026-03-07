@@ -14,7 +14,7 @@ linux, ubuntu-2204-lts
 
 ```
 roles/
-├─ app_deploy/                # deploying the application
+├─ web_app/                # deploying the application
 │  ├─ defaults/main.yml       # default variables: container_port, restart_policy, app_env, etc
 │  ├─ handlers/main.yml       # handlers, for example, restart container
 │  └─ tasks/main.yml          # deployment tasks
@@ -50,7 +50,7 @@ roles/
 - Handlers: restart docker – restarts docker service when notified
 - Dependencies: doesn't have
 
-### App_deploy
+### web_app
 
 - Purpose: deploys the application container: logs in to Docker Hub, pulls the image, stops/removes old container, runs new container, waits for it to be ready, and verifies health
 - Variables: Vaulted: dockerhub_username, dockerhub_password, app_name, docker_image_tag, app_port, app_container_name; Defaults: container_port, restart_policy, app_env
@@ -215,33 +215,33 @@ PLAY [Deploy application] ******************************************************
 TASK [Gathering Facts] *******************************************************************************************************************
 ok: [terraform]
 
-TASK [app_deploy : Show Docker password] *************************************************************************************************
+TASK [web_app : Show Docker password] *************************************************************************************************
 ok: [terraform] => {
     "container_port": "12345"
 }
 
-TASK [app_deploy : Log in to Docker Hub] *************************************************************************************************
+TASK [web_app : Log in to Docker Hub] *************************************************************************************************
 ok: [terraform]
 
-TASK [app_deploy : Pull Docker image] ****************************************************************************************************
+TASK [web_app : Pull Docker image] ****************************************************************************************************
 ok: [terraform]
 
-TASK [app_deploy : Stop existing container (if running)] *********************************************************************************
+TASK [web_app : Stop existing container (if running)] *********************************************************************************
 changed: [terraform]
 
-TASK [app_deploy : Remove old container (if exists)] *************************************************************************************
+TASK [web_app : Remove old container (if exists)] *************************************************************************************
 changed: [terraform]
 
-TASK [app_deploy : Run new container] ****************************************************************************************************
+TASK [web_app : Run new container] ****************************************************************************************************
 changed: [terraform]
 
-TASK [app_deploy : Wait for application to be ready] *************************************************************************************
+TASK [web_app : Wait for application to be ready] *************************************************************************************
 ok: [terraform]
 
-TASK [app_deploy : Verify health endpoint] ***********************************************************************************************
+TASK [web_app : Verify health endpoint] ***********************************************************************************************
 ok: [terraform]
 
-RUNNING HANDLER [app_deploy : restart app container] *************************************************************************************
+RUNNING HANDLER [web_app : restart app container] *************************************************************************************
 ok: [terraform]
 
 PLAY RECAP *******************************************************************************************************************************
@@ -273,7 +273,7 @@ ubuntu@fhmebroid75qocec3dc3:~$ curl http://127.0.0.1:8080/health
 ### Handler execution (if any)
 
 ```bash
-RUNNING HANDLER [app_deploy : restart app container] *************************************************************************************
+RUNNING HANDLER [web_app : restart app container] *************************************************************************************
 ok: [terraform]
 ```
 

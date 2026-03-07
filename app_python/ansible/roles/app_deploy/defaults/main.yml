@@ -1,6 +1,0 @@
----
-container_port: "12345"
-restart_policy: unless-stopped
-
-app_env:
-  PORT: "{{ container_port }}"

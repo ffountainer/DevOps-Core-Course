@@ -82,7 +82,7 @@ docker image pull app:1.0.0
 
 ### Testing ###
 
-### Workflow Badge
+#### Workflow Badge
 
 [![My FLask App Testing](https://github.com/ffountainer/DevOps-Core-Course/actions/workflows/python-ci.yml/badge.svg?branch=master)](https://github.com/ffountainer/DevOps-Core-Course/actions/workflows/python-ci.yml)
 
@@ -100,3 +100,7 @@ To test the ./health endpoint:
 ```bash
 pytest ./app_python/tests/test_health_endpoint.py
 ```
+
+## Ansible deployment
+
+[![Ansible Deployment Status](https://github.com/ffountainer/DevOps-Core-Course/tree/master/actions/workflows/ansible-deploy.yml/badge.svg)](https://github.com/ffountainer/DevOps-Core-Course/tree/master/actions/workflows/ansible-deploy.yml)

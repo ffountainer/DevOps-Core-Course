@@ -57,10 +57,8 @@ jobs:
         run: |
           mkdir -p ~/.ssh
           echo Store the private key
-          echo "${{ secrets.SSH_PRIVATE_KEY }}" | base64 --decode > ~/.ssh/terraform-vm-key
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/terraform-vm-key
           chmod 600 ~/.ssh/terraform-vm-key
-          echo add key passwordto ssh agent
-          ssh-add ~/.ssh/terraform-vm-key <<< "{{ secrets.SSH_KEY_PASS }}"
           echo check key validity
           ssh-keygen -y -f ~/.ssh/terraform-vm-key
           echo Append vm ip to known hosts

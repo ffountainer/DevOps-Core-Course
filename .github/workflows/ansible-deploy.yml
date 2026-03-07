@@ -57,7 +57,8 @@ jobs:
         run: |
           mkdir -p ~/.ssh
           echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/terraform-vm-key
-          # chmod 600 ~/.ssh/terraform-vm-key
+          chmod 600 ~/.ssh/terraform-vm-key
+          ls -l ~/.ssh/terraform-vm-key
           ssh-keyscan -H ${{ secrets.VM_HOST }} >> ~/.ssh/known_hosts
       
       - name: Recreate group_vars/all.yml

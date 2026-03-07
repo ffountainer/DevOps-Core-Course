@@ -58,15 +58,7 @@ jobs:
           mkdir -p ~/.ssh
           echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/terraform-vm-key
           chmod 600 ~/.ssh/terraform-vm-key
-          # ls -l ~/.ssh/terraform-vm-key
-          # echo key contents
-          # base64 ~/.ssh/terraform-vm-key
-          # echo vm host var content
-          # echo "${{ secrets.VM_HOST }}" | base64
-          echo execute keyscan
-          ssh-keyscan -H "${{ secrets.VM_HOST }}" >> ~/.ssh/known_hosts`
-          # echo known hosts contents
-          # base64 ~/.ssh/known_hosts
+          ssh-keyscan -H "${{ secrets.VM_HOST }}" >> ~/.ssh/known_hosts
       
       - name: Recreate group_vars/all.yml
         run: |

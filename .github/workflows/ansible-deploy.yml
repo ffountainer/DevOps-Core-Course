@@ -2,13 +2,11 @@ name: Ansible Deployment
 
 on:
   push:
-    branches: [ master, lab06 ]
-
-  pull_request:
-    branches: [ master ]
     paths:
       - 'app_python/ansible/**'
-
+  pull_request:
+    paths:
+      - 'app_python/ansible/**'
 jobs:
 
   lint:

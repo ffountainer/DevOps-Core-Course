@@ -57,8 +57,10 @@ jobs:
         run: |
           mkdir -p ~/.ssh
           echo Store the private key
-          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/terraform-vm-key
+          printf "%s" "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/terraform-vm-key
           chmod 600 ~/.ssh/terraform-vm-key
+          echo check key validity
+          ssh-keygen -y -f ~/.ssh/terraform-vm-key
           echo Append vm ip to known hosts
           ssh-keyscan "${{ secrets.VM_HOST }}" >> ~/.ssh/known_hosts
       

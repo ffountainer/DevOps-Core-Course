@@ -59,9 +59,9 @@ jobs:
           echo Store the private key
           echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/terraform-vm-key
           chmod 600 ~/.ssh/terraform-vm-key
-          echo Derive public key
-          ssh-keygen -y -f ~/.ssh/terraform-vm-key > ~/.ssh/terraform-vm-key.pub
-          chmod 600 ~/.ssh/terraform-bm-key.pub
+          echo Store public key
+          echo "${{ secrets.SSH_PUBLIC_KEY }}" >> ~/.ssh/terraform-vm-key.pub
+          chmod 600 ~/.ssh/terraform-vm-key.pub
           echo Append vm ip to known hosts
           ssh-keyscan "${{ secrets.VM_HOST }}" >> ~/.ssh/known_hosts
       

@@ -103,4 +103,4 @@ pytest ./app_python/tests/test_health_endpoint.py
 
 ## Ansible deployment
 
-[![Ansible Deployment Status](https://github.com/ffountainer/DevOps-Core-Course/tree/master/actions/workflows/ansible-deploy.yml/badge.svg)](https://github.com/ffountainer/DevOps-Core-Course/tree/master/actions/workflows/ansible-deploy.yml)
+[![Ansible Deployment](https://github.com/ffountainer/DevOps-Core-Course/actions/workflows/ansible-deploy.yml/badge.svg)](https://github.com/ffountainer/DevOps-Core-Course/actions/workflows/ansible-deploy.yml)

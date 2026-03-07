@@ -15,6 +15,7 @@ with open(os.path.expanduser(ssh_key_path)) as f:
 
 network = yandex.VpcNetwork("network", name="network")
 
+
 subnet = yandex.VpcSubnet(
     "subnet",
     name="subnet1",

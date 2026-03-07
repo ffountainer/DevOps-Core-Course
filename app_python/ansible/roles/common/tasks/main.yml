@@ -13,7 +13,6 @@
       ansible.builtin.apt:
         name: "{{ common_packages }}"
         state: present
-  # The second task with user creation
   rescue:
     - name: Handle installation failure
       ansible.builtin.apt:
@@ -25,6 +24,7 @@
         content: "Common role has finished"
         dest: /tmp/common.log
         mode: "0644"
+  # The second block with user creation
 - name: Manage users
   become: true
   tags:
@@ -36,6 +36,7 @@
         state: present
         create_home: true
       loop: "{{ common_users }}"
+  # the third block with timezone set up
 - name: Ensure timezone is set
   become: true
   tags:

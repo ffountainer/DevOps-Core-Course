@@ -3,6 +3,7 @@
   tags:
     - app_deploy
     - compose
+  # block for app deployment with docker compose and possible wipe logic
   block:
     - name: Include wipe tasks
       ansible.builtin.include_tasks: wipe.yml

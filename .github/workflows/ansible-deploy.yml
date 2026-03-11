@@ -57,10 +57,10 @@ jobs:
         run: |
           mkdir -p ~/.ssh
           echo Store the private key
-          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/terraform-vm-key
-          chmod 600 ~/.ssh/terraform-vm-key
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/devops-terraform-passwordless
+          chmod 600 ~/.ssh/devops-terraform-passwordless
           echo check key validity
-          ssh-keygen -y -f ~/.ssh/terraform-vm-key
+          ssh-keygen -y -f ~/.ssh/devops-terraform-passwordless
           echo Append vm ip to known hosts
           ssh-keyscan "${{ secrets.VM_HOST }}" >> ~/.ssh/known_hosts
        
@@ -71,7 +71,7 @@ jobs:
 
       - name: Run Ansible Playbook
         run: |
-          ssh -i ~/.ssh/terraform-vm-key ubuntu@${{ secrets.VM_HOST }} "echo connected"
+          ssh -i ~/.ssh/devops-terraform-passwordless ubuntu@${{ secrets.VM_HOST }} "echo connected"
 
           echo '${{ secrets.ANSIBLE_VAULT_PASSWORD }}' > /tmp/vault_pass
           cd app_python/ansible

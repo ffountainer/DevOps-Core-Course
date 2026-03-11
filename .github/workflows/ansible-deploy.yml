@@ -2,7 +2,7 @@ name: Ansible Deployment
 
 on:
   push:
-    branches: [ master, lab06 ]
+    branches: [ master, lab07 ]
 
   pull_request:
     branches: [ master ]
@@ -55,6 +55,7 @@ jobs:
 
       - name: Setup SSH
         run: |
+          echo ${{ secrets.ANSIBLE_GROUP_VARS_ALL }} | base64
           mkdir -p ~/.ssh
           echo Store the private key
           echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/terraform-vm-key
@@ -63,7 +64,7 @@ jobs:
           ssh-keygen -y -f ~/.ssh/terraform-vm-key
           echo Append vm ip to known hosts
           ssh-keyscan "${{ secrets.VM_HOST }}" >> ~/.ssh/known_hosts
-      
+       
       - name: Recreate group_vars/all.yml
         run: |
           mkdir -p app_python/ansible/group_vars

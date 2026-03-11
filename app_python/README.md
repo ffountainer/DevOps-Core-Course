@@ -67,7 +67,7 @@ docker run -p host-port:container-port image-name:tag
 ```
 Example:
 ```bash
-docker run -p 12345:12345 app:1.0.0
+docker run -p 12345:12345 fountainer/my-app:1.1.0
 ```
 #### Pulling from Docker Hub ###
 

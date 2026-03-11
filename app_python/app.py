@@ -10,9 +10,16 @@ from datetime import datetime
 import socket
 import os
 import logging
+from pythonjsonlogger.json import JsonFormatter
+
 
 app = Flask(__name__)  # creating an instance of Flask
 logger = logging.getLogger(__name__)
+
+logHandler = logging.StreamHandler()
+formatter = JsonFormatter()
+logHandler.setFormatter(formatter)
+logger.addHandler(logHandler)
 
 # variable names
 platform_name = platform.system()
@@ -124,7 +131,7 @@ logging.basicConfig(
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
 )
 
-logger.info("Application starting...")
+logger.info(f"Application starting on port {PORT}...")
 
 if __name__ == "__main__":
     app.run(host=ADDRESS, port=PORT, debug=DEBUG)

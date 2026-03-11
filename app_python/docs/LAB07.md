@@ -1,13 +1,13 @@
 # Documentation
 
-## Architecture (diagram showing how components connect)
+## Architecture (diagram showing how components connect, and the data flow)
 
 ```mermaid
 flowchart LR
 
 subgraph Docker_Network["Docker Compose Network"]
     
-    A[Promtail<br/>port 9080<br/>reads Docker logs]
+    A[Promtail<br/>port 9080<br/>scrapes logs]
     
     B[Loki<br/>port 3100<br/>stores logs]
     
@@ -96,9 +96,37 @@ compactor:
 
 ### Configuration file snippets for Promtail
 
-
-
-
+```bash
+server:
+  # listening port for promtail itself
+  http_listen_port: 9080
+```
+```bash
+# positions help promtail to identify where it left of while reading the file
+positions:
+  filename: "/tmp/positions.yaml"
+  sync_period: 10s
+  ignore_invalid_yaml: false
+```
+```bash
+# where promtail will push logs to
+clients:
+  - url: http://loki:3100/loki/api/v1/push
+```
+```bash
+# discovery configs
+scrape_configs:
+  - job_name: docker
+    docker_sd_configs:
+      - host: unix:///var/run/docker.sock
+        refresh_interval: 5s
+    # relabeling
+    relabel_configs:
+      - source_labels: ['__meta_docker_container_name']
+        # regex helps to remove / from container names
+        regex: '/(.*)'
+        target_label: 'container'
+```
 
 ## Application Logging (how you implemented JSON logging)
 
@@ -106,7 +134,9 @@ compactor:
 
 ## Dashboard (explain each panel and the LogQL queries)
 
-### Screenshots of Grafana dashboard (Screenshot showing logs from at least 3 containers in Grafana Explore)
+### Screenshot showing logs from at least 3 containers in Grafana Explore
+
+![](./screenshots/lab07-shots/grafana_logs_3_containers.png)
 
 ### Screenshot of Grafana showing logs from both applications
 

@@ -1,5 +1,3 @@
-version: "3.8"
-
 services:
   loki:
     image: grafana/loki:3.0.0
@@ -15,6 +13,8 @@ services:
   promtail:
     image: grafana/promtail:3.0.0
     container_name: promtail
+    ports:
+      - "9080:9080"
     command: -config.file=/etc/promtail/config.yml
     volumes:
       - ./promtail/config.yml:/etc/promtail/config.yml
@@ -39,3 +39,9 @@ services:
       - loki
     networks:
       - monitoring
+volumes:
+  loki-data:
+  grafana-data:
+networks:
+  monitoring:
+    driver: bridge

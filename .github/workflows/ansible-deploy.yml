@@ -55,7 +55,6 @@ jobs:
 
       - name: Setup SSH
         run: |
-          echo ${{ secrets.ANSIBLE_GROUP_VARS_ALL }} | base64
           mkdir -p ~/.ssh
           echo Store the private key
           echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/terraform-vm-key

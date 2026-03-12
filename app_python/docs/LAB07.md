@@ -152,16 +152,28 @@ I implemented logging using JsonFormatter from pythonjsonlogger.json. It has bas
 
 ### Screenshot of your dashboard showing all 4 panels with real data.
 
+I have 4 panels:
+- All collected logs ("Logs from all apps")
+- The rate of getting logs ("Logs rate")
+- A pie chart that shows the relative size of logs with different errors ("Level statistics")
+- All collected error logs ("Error logs")
+
+![](./screenshots/lab07-shots/grafana%20dashboard.png)
+
 ### Example LogQL queries with explanations (At least 3 different LogQL queries that work)
 
-``bash
-# all logs from the app
-{service_name="app-python"}
-# access all logs from the app which level is error
-{service_name="app-python"} |= "ERROR"
-# all logs where request method was GET
-{service_name="app-python"} | json | METHOD = `GET`
-```
+- all logs from the app: 
+- - {service_name="app-python"}
+- access all logs from the app which level is error: 
+- - {service_name="app-python"} |= "ERROR"
+- all logs where request method was GET: 
+- - {service_name="app-python"} | json | METHOD = `GET`
+- relative size of logs by levels: 
+- - sum by (level) (count_over_time({service_name=~"app-.*"} | json [60m]))
+- rate of logs: 
+- - sum by (service_name) (rate({service_name=~"app-.*"} [120m]))
+- error logs: 
+- - {service_name=~"app-.*"} | json | LEVEL="ERROR"
 
 ## Production Config (security measures, resources, retention)
 

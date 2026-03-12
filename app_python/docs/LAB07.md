@@ -130,7 +130,11 @@ scrape_configs:
 
 ## Application Logging (how you implemented JSON logging)
 
+I implemented logging using JsonFormatter from pythonjsonlogger.json. It has basic configured fields and I can add extra fields relating to the request from dedicated functions that handle connections.
+
 ### Screenshot of JSON log output from your app
+
+![](./screenshots/lab07-shots/logs%20from%20the%20app.png)
 
 ## Dashboard (explain each panel and the LogQL queries)
 

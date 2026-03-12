@@ -9,7 +9,7 @@ services:
       - ./loki/config.yml:/etc/loki/config.yml
       - loki-data:/loki
     networks:
-      - monitoring
+      - logging
   promtail:
     image: grafana/promtail:3.0.0
     container_name: promtail
@@ -23,7 +23,7 @@ services:
     depends_on:
       - loki
     networks:
-      - monitoring
+      - logging
   grafana:
     image: grafana/grafana:12.3.1
     container_name: grafana
@@ -38,10 +38,19 @@ services:
     depends_on:
       - loki
     networks:
-      - monitoring
+      - logging
+  app-python:
+    image: fountainer/my-app:latest
+    ports:
+      - "1999:12345"
+    networks:
+      - logging
+    labels:
+      logging: "promtail"
+      app: "my-app"
 volumes:
   loki-data:
   grafana-data:
 networks:
-  monitoring:
+  logging:
     driver: bridge

@@ -25,7 +25,8 @@ logHandler = logging.StreamHandler()
 formatter = JsonFormatter(
     "levelname, asctime, message",
     style=",",
-    rename_fields={"levelname": "LEVEL", "asctime": "TIMESTAMP", "message": "MESSAGE"},
+    rename_fields=({"levelname": "LEVEL",
+                    "asctime": "TIMESTAMP", "message": "MESSAGE"}),
 )
 
 logHandler.setFormatter(formatter)
@@ -105,7 +106,8 @@ def not_found(error):
             "PATH": request.path,
         },
     )
-    return (jsonify({"error": "Not Found", "MESSAGE": "Endpoint does not exist"}), 404)
+    return (jsonify(({"error": "Not Found",
+                      "MESSAGE": "Endpoint does not exist"})), 404)
 
 
 @app.errorhandler(500)

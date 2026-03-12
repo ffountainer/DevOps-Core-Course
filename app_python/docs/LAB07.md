@@ -142,11 +142,26 @@ I implemented logging using JsonFormatter from pythonjsonlogger.json. It has bas
 
 ![](./screenshots/lab07-shots/grafana_logs_3_containers.png)
 
-### Screenshot of Grafana showing logs from both applications
+### Screenshots of Grafana showing logs from the app
+
+![](./screenshots/lab07-shots/grafana-app-name.png)
+
+![](./screenshots/lab07-shots/grafana-error.png)
+
+![](./screenshots/lab07-shots/grafana_get.png)
 
 ### Screenshot of your dashboard showing all 4 panels with real data.
 
 ### Example LogQL queries with explanations (At least 3 different LogQL queries that work)
+
+``bash
+# all logs from the app
+{service_name="app-python"}
+# access all logs from the app which level is error
+{service_name="app-python"} |= "ERROR"
+# all logs where request method was GET
+{service_name="app-python"} | json | METHOD = `GET`
+```
 
 ## Production Config (security measures, resources, retention)
 

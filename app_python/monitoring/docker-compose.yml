@@ -41,6 +41,7 @@ services:
       - logging
   app-python:
     image: fountainer/my-app:latest
+    container_name: app-python
     ports:
       - "1999:12345"
     networks:

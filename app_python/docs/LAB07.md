@@ -26,6 +26,20 @@ C -->|query logs<br/>http://loki:3100| B
 
 ## Setup Guide (step-by-step deployment instructions)
 
+```bash
+# make sure your docker compose is working
+docker compose version  
+```
+```bash
+# enter the monitoring directory
+cd app_python/monitoring
+```
+```bash
+# deploy the containers
+docker compose up -d  
+```
+Important! Make sure you have your .env file with secrets GF_PASSWORD and GF_EMAIL for Grafana authorization.
+
 ## Configuration (explain your Loki/Promtail configs and why)
 
 ### Configuration file snippets for Loki
@@ -177,12 +191,70 @@ I have 4 panels:
 
 ## Production Config (security measures, resources, retention)
 
-### Configuration file snippets (not full files)
+### Configuration file snippets
 
-## Testing (commands to verify everything works)
+```bash
+# healthchecks for loki and grafana to verify that containers are running and everything is okay
+healthcheck:
+      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:3100/ready || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s 
+```
+
+```bash
+# resources limits: promtail, grafana, and app_python are pretty lightweight, but loki needs a lot of memory to store logs
+deploy:
+      resources:
+        limits:
+          cpus: "1.50"
+          memory: 2G
+        reservations:
+          cpus: "0.50"
+          memory: 512M
+```
+
+```bash
+# now grafana requires login authorization, it is configured with .env file with environment variables
+environment:
+      - GF_AUTH_ANONYMOUS_ENABLED=false
+      - GF_SECURITY_ADMIN_PASSWORD=${GF_PASSWORD}
+      - GF_SECURITY_ADMIN_EMAIL=${GF_EMAIL}
+```
 
 ### docker-compose ps showing all services healthy
 
+![](./screenshots/lab07-shots/healthy%20services.png)
+
 ### Screenshot of Grafana login page (no anonymous access)
 
+![](./screenshots/lab07-shots/grafana_login.png)
+
+## Testing (commands to verify everything works)
+
+```bash
+# check that the containers are up and healthy
+docker compose ps
+```
+
+```bash
+# check loki
+curl http://localhost:3100/ready
+```
+
+```bash
+# check promtail
+curl http://localhost:9080/targets
+```
+
+```bash
+# check grafana
+open http://localhost:3000
+```
+
 ## Challenges (problems you encountered and solutions)
+
+- It was pretty hard for me to set up logging but after a long research it was done (I used python documentation and some guides to work out how JsonFormatter works with/without logging.BasicConfig())
+
+- Also I was very confused about how to make promtail keep logs from a service with a specific label (I researched Stack Overflow and used AI a bit for this one)

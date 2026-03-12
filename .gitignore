@@ -8,3 +8,5 @@ app_python/ansible/group_vars/all.yml
 app_python/reminder.md
 
 .vscode/settings.json
+
+app_python/monitoring/.env

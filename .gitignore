@@ -3,3 +3,8 @@
 
 # Vault
 app_python/ansible/group_vars/all.yml
+
+# File for me
+app_python/reminder.md
+
+.vscode/settings.json

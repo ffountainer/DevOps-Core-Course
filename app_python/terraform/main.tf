@@ -10,6 +10,8 @@ terraform {
 provider "yandex" {
   service_account_key_file = "/Users/fountainer/.yandexcloud/my-sa-key.json"
   zone = var.zone
+  cloud_id  = "b1g4lhssapi17vlk0t0m"
+  folder_id = "b1gcu87lbfoq3i0quvi9"
 }
 
 data "yandex_compute_image" "ubuntu_2204" {

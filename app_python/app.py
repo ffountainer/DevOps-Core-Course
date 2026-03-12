@@ -10,9 +10,29 @@ from datetime import datetime
 import socket
 import os
 import logging
+from pythonjsonlogger.json import JsonFormatter
 
 app = Flask(__name__)  # creating an instance of Flask
+
+
 logger = logging.getLogger(__name__)
+
+
+# Log important events: startup, HTTP requests, errors
+# Include context: method, path, status code, client IP
+
+logHandler = logging.StreamHandler()
+formatter = JsonFormatter(
+    "levelname, asctime, message",
+    style=",",
+    rename_fields=({"levelname": "LEVEL",
+                    "asctime": "TIMESTAMP", "message": "MESSAGE"}),
+)
+
+logHandler.setFormatter(formatter)
+logger.addHandler(logHandler)
+
+logger.setLevel(logging.DEBUG)
 
 # variable names
 platform_name = platform.system()
@@ -22,14 +42,24 @@ hostname = socket.gethostname()
 
 # env variables
 ADDRESS = os.getenv("ADDRESS", "0.0.0.0")
-PORT = int(os.getenv("PORT", 5000))
+PORT = int(os.getenv("PORT", 1999))
 DEBUG = os.getenv("DEBUG", "True").lower() == "true"
 
 
 # decorator for / path
 @app.route("/", methods=["GET"])
 def get_endpoint():
-    logger.debug(f"Request: {request.method} {request.path}")
+    logger.info(
+        {
+            "MESSAGE": f"Request: {request.method} {request.path}",
+        },
+        extra={
+            "CLIENT_IP": request.remote_addr,
+            "STATUS_CODE": 200,
+            "METHOD": request.method,
+            "PATH": request.path,
+        },
+    )
     response = jsonify(message=message)
     response.status_code = 200
     return response
@@ -38,7 +68,18 @@ def get_endpoint():
 # decorator for /health path
 @app.route("/health")
 def health():
-    logger.debug(f"Request: {request.method} {request.path}")
+    # extra: status code, client ip
+    logger.info(
+        {
+            "MESSAGE": f"Request: {request.method} {request.path}",
+        },
+        extra={
+            "CLIENT_IP": request.remote_addr,
+            "STATUS_CODE": 200,
+            "METHOD": request.method,
+            "PATH": request.path,
+        },
+    )
     response = jsonify(
         {
             "status": "healthy",
@@ -46,7 +87,7 @@ def health():
             "uptime_seconds": get_uptime()["seconds"],
         }
     )
-    response.status_code = 200
+    response.STATUS_CODE = 200
     return response
 
 
@@ -55,17 +96,37 @@ def health():
 
 @app.errorhandler(404)
 def not_found(error):
-    return jsonify({"error": "Not Found",
-                    "message": "Endpoint does not exist"}), 404
+    logger.error(
+        {"MESSAGE": "Endpoint does not exist"},
+        extra={
+            "ERROR": "Not Found",
+            "STATUS_CODE": 404,
+            "CLIENT_IP": request.remote_addr,
+            "METHOD": request.method,
+            "PATH": request.path,
+        },
+    )
+    return (jsonify(({"error": "Not Found",
+                      "MESSAGE": "Endpoint does not exist"})), 404)
 
 
 @app.errorhandler(500)
 def internal_error(error):
+    logger.error(
+        {"MESSAGE": "Internal Server Error"},
+        extra={
+            "ERROR": "Not Found",
+            "STATUS_CODE": 404,
+            "CLIENT_IP": request.remote_addr,
+            "METHOD": request.method,
+            "PATH": request.path,
+        },
+    )
     return (
         jsonify(
             {
                 "error": "Internal Server Error",
-                "message": "An unexpected error occurred",
+                "MESSAGE": "An unexpected error occurred",
             }
         ),
         500,
@@ -119,12 +180,11 @@ message = {
     ],
 }
 
-logging.basicConfig(
-    level=logging.DEBUG,
-    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+logger.info(
+    {
+        "MESSAGE": f"Application starting on port {PORT}...",
+    }
 )
-
-logger.info("Application starting...")
 
 if __name__ == "__main__":
     app.run(host=ADDRESS, port=PORT, debug=DEBUG)

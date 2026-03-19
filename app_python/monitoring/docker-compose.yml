@@ -19,8 +19,8 @@ services:
     deploy:
       resources:
         limits:
-          cpus: "1.50"
-          memory: 2G
+          cpus: "1.0"
+          memory: 1G
         reservations:
           cpus: "0.50"
           memory: 512M
@@ -70,7 +70,7 @@ services:
     deploy:
       resources:
         limits:
-          cpus: "0.50"
+          cpus: "0.5"
           memory: 512M
         reservations:
           cpus: "0.25"
@@ -80,6 +80,11 @@ services:
     container_name: app-python
     ports:
       - "1999:12345"
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:12345/health || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
     networks:
       - logging
     labels:
@@ -88,14 +93,46 @@ services:
     deploy:
       resources:
         limits:
-          cpus: "0.25"
+          cpus: "0.5"
           memory: 256M
         reservations:
           cpus: "0.10"
           memory: 128M
+  prometheus:
+    image: prom/prometheus:v3.9.0
+    container_name: prometheus
+    ports:
+      - "9090:9090"
+    healthcheck:
+      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:9090/-/healthy || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    command:
+      - --config.file=/etc/prometheus/prometheus.yml
+      - --storage.tsdb.retention.time=15d
+      - --storage.tsdb.retention.size=10GB
+    volumes:
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus-data:/prometheus
+    networks:
+      - logging
+    depends_on:
+      - app-python
+      - loki
+      - grafana
+    deploy:
+      resources:
+        limits:
+          cpus: "1.0"
+          memory: 1G
 volumes:
   loki-data:
   grafana-data:
+  prometheus-data:
 networks:
   logging:
     driver: bridge
+
+
+

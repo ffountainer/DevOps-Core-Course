@@ -11,6 +11,9 @@ import socket
 import os
 import logging
 from pythonjsonlogger.json import JsonFormatter
+from prometheus_client import Counter, Histogram, Gauge, generate_latest
+import time
+from flask import g, Response
 
 app = Flask(__name__)  # creating an instance of Flask
 
@@ -25,14 +28,73 @@ logHandler = logging.StreamHandler()
 formatter = JsonFormatter(
     "levelname, asctime, message",
     style=",",
-    rename_fields=({"levelname": "LEVEL",
-                    "asctime": "TIMESTAMP", "message": "MESSAGE"}),
+    rename_fields=(
+        {"levelname": "LEVEL", "asctime": "TIMESTAMP", "message": "MESSAGE"}
+    ),
 )
 
 logHandler.setFormatter(formatter)
 logger.addHandler(logHandler)
 
 logger.setLevel(logging.DEBUG)
+
+# Prometheus metrics
+
+http_requests_total = Counter(
+    "http_requests_total", "Total HTTP requests",
+    ["method", "endpoint", "status_code"]
+)
+
+http_request_duration_seconds = Histogram(
+    "http_request_duration_seconds",
+    "HTTP request duration", ["method", "endpoint"]
+)
+
+http_requests_in_progress = Gauge(
+    "http_requests_in_progress",
+    "HTTP requests currently being processed"
+)
+
+endpoint_calls = Counter("devops_info_endpoint_calls",
+                         "Endpoint calls", ["endpoint"])
+
+system_info_duration = Histogram(
+    "devops_info_system_collection_seconds",
+    "System info collection time"
+)
+
+
+@app.before_request
+def before_request():
+    g.start_time = time.time()
+    http_requests_in_progress.inc()
+
+
+@app.after_request
+def after_request(response):
+    duration = time.time() - g.start_time
+
+    endpoint = request.path
+
+    if endpoint == "/metrics":
+        return response
+
+    if endpoint.startswith("/user/"):
+        endpoint = "/user/{id}"
+
+    http_requests_total.labels(
+        method=request.method, endpoint=endpoint,
+        status_code=response.status_code
+    ).inc()
+
+    http_request_duration_seconds.labels(
+        method=request.method, endpoint=endpoint
+    ).observe(duration)
+
+    http_requests_in_progress.dec()
+
+    return response
+
 
 # variable names
 platform_name = platform.system()
@@ -46,9 +108,16 @@ PORT = int(os.getenv("PORT", 1999))
 DEBUG = os.getenv("DEBUG", "True").lower() == "true"
 
 
+@app.route("/metrics")
+def metrics():
+    return Response(generate_latest(), mimetype="text/plain")
+
+
 # decorator for / path
 @app.route("/", methods=["GET"])
 def get_endpoint():
+    start = time.time()
+    endpoint_calls.labels(endpoint="/").inc()
     logger.info(
         {
             "MESSAGE": f"Request: {request.method} {request.path}",
@@ -62,12 +131,15 @@ def get_endpoint():
     )
     response = jsonify(message=message)
     response.status_code = 200
+    system_info_duration.observe(time.time() - start)
     return response
 
 
 # decorator for /health path
 @app.route("/health")
 def health():
+    start = time.time()
+    endpoint_calls.labels(endpoint="/health").inc()
     # extra: status code, client ip
     logger.info(
         {
@@ -87,7 +159,8 @@ def health():
             "uptime_seconds": get_uptime()["seconds"],
         }
     )
-    response.STATUS_CODE = 200
+    response.status_code = 200
+    system_info_duration.observe(time.time() - start)
     return response
 
 
@@ -106,8 +179,11 @@ def not_found(error):
             "PATH": request.path,
         },
     )
-    return (jsonify(({"error": "Not Found",
-                      "MESSAGE": "Endpoint does not exist"})), 404)
+    return (
+        jsonify(({"error": "Not Found",
+                 "MESSAGE": "Endpoint does not exist"})),
+        404,
+    )
 
 
 @app.errorhandler(500)
@@ -116,7 +192,7 @@ def internal_error(error):
         {"MESSAGE": "Internal Server Error"},
         extra={
             "ERROR": "Not Found",
-            "STATUS_CODE": 404,
+            "STATUS_CODE": 500,
             "CLIENT_IP": request.remote_addr,
             "METHOD": request.method,
             "PATH": request.path,

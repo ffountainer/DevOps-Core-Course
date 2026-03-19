@@ -29,9 +29,15 @@
 
 ### Screenshot of /targets page showing all targets UP
 
+![](./screenshots/lab08-shots/prometheous%20targets.png)
+
 ### Screenshot of a successful PromQL query
 
+![](./screenshots/lab08-shots/successful%20query.png)
+
 ### prometheus.yml configuration file
+
+- you can find it in ./app_python_monitoring/prometheous/prometheous.yml
 
 ## Dashboard Walkthrough - Each panel's purpose and query
 

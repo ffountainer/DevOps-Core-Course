@@ -2,7 +2,7 @@ name: Ansible Deployment
 
 on:
   push:
-    branches: [ master, lab07 ]
+    branches: [ master, lab08 ]
 
   pull_request:
     branches: [ master ]

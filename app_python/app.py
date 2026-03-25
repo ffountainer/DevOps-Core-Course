@@ -135,6 +135,30 @@ def get_endpoint():
     return response
 
 
+@app.route("/ready")
+def ready():
+    start = time.time()
+    endpoint_calls.labels(endpoint="/ready").inc()
+    logger.info(
+        {
+            "MESSAGE": f"Request: {request.method} {request.path}",
+        },
+        extra={
+            "CLIENT_IP": request.remote_addr,
+            "STATUS_CODE": 200,
+            "METHOD": request.method,
+            "PATH": request.path,
+        },
+    )
+    response = jsonify({
+        "status": "ready",
+        "timestamp": datetime.now().isoformat()
+    })
+    response.status_code = 200
+    system_info_duration.observe(time.time() - start)
+    return response
+
+
 # decorator for /health path
 @app.route("/health")
 def health():

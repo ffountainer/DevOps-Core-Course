@@ -3,20 +3,57 @@
 ## Chart Overview
 
 ### Chart structure explanation
+
+- the chart has templates/ for kubectl manifests, values.yaml for default settings, and _helpers.tpl for reusable template functions. Hooks are in templates/hooks/ for pre and post-install jobs
+
 ### Key template files and their purpose
+
+- deployment.yaml defines the app pods and containers
+- service.yaml exposes them, and hooks run tasks before or after install
+- helpers in _helpers.tpl build names, labels, and selectors consistently, and then can be reused in different config files
+
 ### Values organization strategy
+
+- values.yaml has defaults, while values-dev.yaml and values-prod.yaml override settings for different environments.
+This keeps environment configs separate and easy to manage.
 
 ## Configuration Guide
 
 ### Important values and their purpose
+
+- replicaCount sets pod number, resources manage CPU/memory, service.type controls what role will the service have (NodePort vs LoadBalancer, etc). LivenessProbe and readinessProbe check pod health.
+
 ### How to customize for different environments
+
+- you can use values-dev.yaml for dev with 1 replica and NodePort, values-prod.yaml for prod with more replicas and LoadBalancer. and you can also override values on install with --set
+
 ### Example installations with different configurations
+
+- dev
+
+```bash
+helm install myapp-dev k8s/app_python -f k8s/app_python/values-dev.yaml
+```
+
+- prod
+
+```bash
+helm install myapp-prod k8s/app_python -f k8s/app_python/values-prod.yaml
+```
 
 ## Hook Implementation
 
 ### What hooks you implemented and why
+
+- I implemented a pre-install job for setup tasks and a post-install job for validation, to simulate real lifecycle tasks
+
 ### Hook execution order and weights
+
+- Pre-install has weight -5 to run early, post-install has weight 5 to run after deployment.
+
 ### Deletion policies explanation
+
+- both hooks have hook-succeeded policy so they auto-delete after finishing successfully
 
 ## Installation Evidence
 
@@ -222,7 +259,17 @@ my-python-app-prod-app-python-service   LoadBalancer   10.101.156.227   <pending
 helm install name-of-new-release k8s/app_python -f k8s/app_python/values-for-new-release.yaml
 ```
 ### How to upgrade a release
+
+```bash
+helm upgrade myrelease k8s/app_python -f k8s/app_python/values-prod.yaml
+```
+
 ### How to rollback
+
+```bash
+helm rollback myrelease 1
+```
+
 ### How to uninstall
 
 ```bash

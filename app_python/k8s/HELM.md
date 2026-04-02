@@ -112,12 +112,67 @@ myrelease       default         1               2026-04-02 21:50:30.632911 +0300
 ### Hook execution output (kubectl get jobs, kubectl describe job)
 ### Different environment deployments (dev vs prod)
 
+- Dev
+
+```bash
+(devops) fountainer@Veronicas-MacBook-Air app_python % helm install my-python-app-dev k8s/app_python -f k8s/app_python/values-dev.yaml
+NAME: my-python-app-dev
+LAST DEPLOYED: Thu Apr  2 22:00:55 2026
+NAMESPACE: default
+STATUS: deployed
+REVISION: 1
+DESCRIPTION: Install complete
+TEST SUITE: None
+(devops) fountainer@Veronicas-MacBook-Air app_python % kubectl get pods
+NAME                                            READY   STATUS    RESTARTS   AGE
+my-python-app-dev-app-python-7d7f699d85-kklth   1/1     Running   0          2m20s
+(devops) fountainer@Veronicas-MacBook-Air app_python % kubectl get svc
+NAME                                   TYPE        CLUSTER-IP      EXTERNAL-IP   PORT(S)        AGE
+kubernetes                             ClusterIP   10.96.0.1       <none>        443/TCP        7d23h
+my-python-app-dev-app-python-service   NodePort    10.104.238.26   <none>        80:30007/TCP   2m27s
+```
+
+- Prod
+
+```bash
+(devops) fountainer@Veronicas-MacBook-Air app_python % helm install my-python-app-prod k8s/app_python -f k8s/app_python/values-prod.yaml
+NAME: my-python-app-prod
+LAST DEPLOYED: Thu Apr  2 22:12:24 2026
+NAMESPACE: default
+STATUS: deployed
+REVISION: 1
+DESCRIPTION: Install complete
+TEST SUITE: None
+(devops) fountainer@Veronicas-MacBook-Air app_python % kubectl get pod
+NAME                                             READY   STATUS    RESTARTS   AGE
+my-python-app-dev-app-python-7d7f699d85-kklth    1/1     Running   0          12m
+my-python-app-prod-app-python-74c5b97dd5-4mjjr   0/1     Running   0          38s
+my-python-app-prod-app-python-74c5b97dd5-6pm7l   0/1     Running   0          38s
+my-python-app-prod-app-python-74c5b97dd5-75dvc   0/1     Running   0          38s
+my-python-app-prod-app-python-74c5b97dd5-9v58s   0/1     Running   0          38s
+my-python-app-prod-app-python-74c5b97dd5-xktsb   0/1     Running   0          38s
+(devops) fountainer@Veronicas-MacBook-Air app_python % kubectl get svc
+NAME                                    TYPE           CLUSTER-IP       EXTERNAL-IP   PORT(S)        AGE
+kubernetes                              ClusterIP      10.96.0.1        <none>        443/TCP        7d23h
+my-python-app-dev-app-python-service    NodePort       10.104.238.26    <none>        80:30007/TCP   12m
+my-python-app-prod-app-python-service   LoadBalancer   10.101.156.227   <pending>     80:30008/TCP   49s
+```
+
+
 ## Operations
 
 ### Installation commands used
+
+```bash
+helm install name-of-new-release k8s/app_python -f k8s/app_python/values-for-new-release.yaml
+```
 ### How to upgrade a release
 ### How to rollback
 ### How to uninstall
+
+```bash
+helm uninstall name-of-release 
+```
 
 ## Testing & Validation
 

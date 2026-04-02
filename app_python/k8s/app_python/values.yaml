@@ -37,4 +37,4 @@ service:
   port: 80
   targetPort: 12345
   protocol: TCP
-  nodePort: 30007
+  nodePort: 30009

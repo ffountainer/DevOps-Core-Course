@@ -102,14 +102,69 @@ version: 28.15.0
 ### helm list output
 
 ```bash
-(devops) fountainer@Veronicas-MacBook-Air app_python % helm list                            
-NAME            NAMESPACE       REVISION        UPDATED                                 STATUS          CHART                   APP VERSION
-myrelease       default         1               2026-04-02 21:50:30.632911 +0300 MSK    deployed        app_python-0.1.0        1.0        
-(devops) fountainer@Veronicas-MacBook-Air app_python % 
+fountainer@Veronicas-MacBook-Air DevOps-Core-Course % helm list
+NAME                    NAMESPACE       REVISION        UPDATED                                 STATUS          CHART                   APP VERSION
+my-python-app-dev       default         1               2026-04-02 22:00:55.999506 +0300 MSK    deployed        app_python-0.1.0        1.0        
+my-python-app-prod      default         1               2026-04-02 22:12:24.157572 +0300 MSK    deployed        app_python-0.1.0        1.0        
+myrelease               default         1               2026-04-02 22:40:56.562009 +0300 MSK    deployed        app_python-0.1.0        1.0        
 ```
 
 ### kubectl get all showing deployed resources
-### Hook execution output (kubectl get jobs, kubectl describe job)
+
+```bash
+fountainer@Veronicas-MacBook-Air DevOps-Core-Course % kubectl get all
+NAME                                                 READY   STATUS    RESTARTS   AGE
+pod/my-python-app-dev-app-python-7d7f699d85-kklth    1/1     Running   0          43m
+pod/my-python-app-prod-app-python-74c5b97dd5-4mjjr   0/1     Running   0          31m
+pod/my-python-app-prod-app-python-74c5b97dd5-6pm7l   0/1     Running   0          31m
+pod/my-python-app-prod-app-python-74c5b97dd5-75dvc   0/1     Running   0          31m
+pod/my-python-app-prod-app-python-74c5b97dd5-9v58s   0/1     Running   0          31m
+pod/my-python-app-prod-app-python-74c5b97dd5-xktsb   0/1     Running   0          31m
+pod/myrelease-app-python-569fb4b645-6v9dt            1/1     Running   0          2m32s
+pod/myrelease-app-python-569fb4b645-8ws5n            1/1     Running   0          2m32s
+pod/myrelease-app-python-569fb4b645-glt5r            1/1     Running   0          2m32s
+pod/myrelease-app-python-569fb4b645-qtg4j            1/1     Running   0          2m32s
+pod/myrelease-app-python-569fb4b645-rgppk            1/1     Running   0          2m32s
+
+NAME                                            TYPE           CLUSTER-IP       EXTERNAL-IP   PORT(S)        AGE
+service/kubernetes                              ClusterIP      10.96.0.1        <none>        443/TCP        8d
+service/my-python-app-dev-app-python-service    NodePort       10.104.238.26    <none>        80:30007/TCP   43m
+service/my-python-app-prod-app-python-service   LoadBalancer   10.101.156.227   <pending>     80:30008/TCP   31m
+service/myrelease-app-python-service            NodePort       10.107.17.3      <none>        80:30009/TCP   2m32s
+
+NAME                                            READY   UP-TO-DATE   AVAILABLE   AGE
+deployment.apps/my-python-app-dev-app-python    1/1     1            1           43m
+deployment.apps/my-python-app-prod-app-python   0/5     5            0           31m
+deployment.apps/myrelease-app-python            5/5     5            5           2m32s
+
+NAME                                                       DESIRED   CURRENT   READY   AGE
+replicaset.apps/my-python-app-dev-app-python-7d7f699d85    1         1         1       43m
+replicaset.apps/my-python-app-prod-app-python-74c5b97dd5   5         5         0       31m
+replicaset.apps/myrelease-app-python-569fb4b645            5         5         5       2m32s
+fountainer@Veronicas-MacBook-Air DevOps-Core-Course % 
+```
+
+### Hook execution output (kubectl get jobs)
+
+```bash
+fountainer@Veronicas-MacBook-Air DevOps-Core-Course % kubectl get jobs -w
+NAME                               STATUS    COMPLETIONS   DURATION   AGE
+myrelease-app-python-pre-install   Running   0/1                      0s
+myrelease-app-python-pre-install   Running   0/1           0s         0s
+myrelease-app-python-pre-install   Running   0/1           33s        33s
+myrelease-app-python-pre-install   Running   0/1           43s        43s
+myrelease-app-python-pre-install   SuccessCriteriaMet   0/1           44s        44s
+myrelease-app-python-pre-install   Complete             1/1           44s        44s
+myrelease-app-python-pre-install   Complete             1/1           44s        44s
+myrelease-app-python-post-install   Running              0/1                      0s
+myrelease-app-python-post-install   Running              0/1           0s         0s
+myrelease-app-python-post-install   Running              0/1           5s         5s
+myrelease-app-python-post-install   Running              0/1           15s        15s
+myrelease-app-python-post-install   SuccessCriteriaMet   0/1           16s        16s
+myrelease-app-python-post-install   Complete             1/1           16s        16s
+myrelease-app-python-post-install   Complete             1/1           16s        16s
+```
+
 ### Different environment deployments (dev vs prod)
 
 - Dev
@@ -394,3 +449,4 @@ spec:
 ```
 ### Application accessibility verification
 
+![](./../docs/screenshots/lab10-shots/app-working.png)

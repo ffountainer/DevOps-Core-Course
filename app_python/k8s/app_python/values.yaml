@@ -38,3 +38,9 @@ service:
   targetPort: 12345
   protocol: TCP
   nodePort: 30009
+
+secret:
+  name: app-credentials 
+  data:
+    username: "placeholder-user"
+    password: "placeholder-password"

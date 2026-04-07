@@ -41,11 +41,63 @@ fountainer%
 ### How secrets are consumed in deployment
 ### Verification output (env vars in pod, excluding actual values)
 
+- in pod I have correct env vars:
+
+```bash
+(devops) fountainer@Veronicas-MacBook-Air DevOps-Core-Course % kubectl exec -it mysecretrelease-app-python-7975557578-6zc9m -- sh
+$ echo $PASSWORD
+mypass293i20@@nekf
+$ echo $USERNAME
+fountainer
+```
+
+- and outside the secrets are hidden
+
+from ```bash kubectl describe pod mysecretrelease-app-python-7975557578-6zc9m```
+
+```bash
+Environment:
+      PASSWORD:  <set to the key 'password' in secret 'app-credentials'>  Optional: false
+      USERNAME:  <set to the key 'username' in secret 'app-credentials'>  Optional: false
+```
+
+
 ## Resource Management
 
 ### Resource limits configuration
+
+```bash
+resources:
+    requests:
+        cpu: {{ .Values.resources.requests.cpu }}
+        memory: {{ .Values.resources.requests.memory }}
+    limits:
+        cpu: {{ .Values.resources.limits.cpu }}
+        memory: {{ .Values.resources.limits.memory }}
+```
+- in values.yaml I have
+
+```bash
+resources:
+  requests:
+    cpu: "100m"
+    memory: "128Mi"
+  limits:
+    cpu: "500m"
+    memory: "256Mi"
+```
+
 ### Explanation of requests vs limits
+
+- requests is a setting that shows kubernates how much resources are needed for a container to run
+- limits show how much resources a container is allowed to use (max)
+
 ### How to choose appropriate values
+
+- you should analyze what processes does your container run and how many cpu/memory it may need 
+- values can be adjusted by observing the running container
+- if you have multiple containers/pods you should constraint them in such a way that they all can work without throttling
+- if the memory limit is too low the container can be killed right away
 
 ## Vault Integration
 

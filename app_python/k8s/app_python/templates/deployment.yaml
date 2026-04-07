@@ -1,3 +1,5 @@
+{{- $secretName := .Values.secret.name | default (include "mychart.fullname" .) }}
+
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -22,6 +24,17 @@ spec:
       containers:
         - name: {{ include "mychart.name" . }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          env:
+            - name: PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ $secretName }}
+                  key: password
+            - name: USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: {{ $secretName }}
+                  key: username
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           ports:
             - containerPort: {{ .Values.container.port }}

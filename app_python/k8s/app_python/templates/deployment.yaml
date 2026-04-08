@@ -1,3 +1,5 @@
+{{- $secretName := .Values.secret.name | default (include "mychart.fullname" .) }}
+
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -18,10 +20,25 @@ spec:
     metadata:
       labels:
         {{- include "mychart.selectorLabels" . | nindent 8 }}
+      annotations:
+        vault.hashicorp.com/agent-inject: "true"
+        vault.hashicorp.com/role: "myapp-role"
+        vault.hashicorp.com/agent-inject-secret-config: "secret/data/myapp/config"
     spec:
       containers:
         - name: {{ include "mychart.name" . }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          env:
+            - name: PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ $secretName }}
+                  key: password
+            - name: USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: {{ $secretName }}
+                  key: username
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           ports:
             - containerPort: {{ .Values.container.port }}

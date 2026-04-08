@@ -38,7 +38,29 @@ fountainer%
 ## Helm Secret Integration
 
 ### Chart structure showing secrets.yaml
+
+```bash
+(devops) fountainer@Veronicas-MacBook-Air DevOps-Core-Course % tree app_python/k8s/app_python 
+app_python/k8s/app_python
+├── Chart.yaml
+├── charts
+├── templates
+│   ├── _helpers.tpl
+│   ├── deployment.yaml
+│   ├── hooks
+│   │   ├── post-install-job.yaml
+│   │   └── pre-install-job.yaml
+│   ├── secrets.yaml
+│   └── service.yaml
+├── values-dev.yaml
+├── values-prod.yaml
+└── values.yaml
+```
+
 ### How secrets are consumed in deployment
+
+- I have $secretName variable that is dynamically set to the name from the values.yaml and values I provide in the helm install command OR defaults to the value from helper. 
+
 ### Verification output (env vars in pod, excluding actual values)
 
 - in pod I have correct env vars:
@@ -102,13 +124,74 @@ resources:
 ## Vault Integration
 
 ### Vault installation verification (kubectl get pods)
+
+```bash
+(devops) fountainer@Veronicas-MacBook-Air DevOps-Core-Course % kubectl get pod
+NAME                                          READY   STATUS    RESTARTS   AGE
+mysecretrelease-app-python-7975557578-6zc9m   1/1     Running   0          63m
+mysecretrelease-app-python-7975557578-7l4tv   1/1     Running   0          63m
+mysecretrelease-app-python-7975557578-bqnpd   1/1     Running   0          63m
+mysecretrelease-app-python-7975557578-cjjcb   1/1     Running   0          63m
+mysecretrelease-app-python-7975557578-st2jd   1/1     Running   0          63m
+vault-0                                       1/1     Running   0          8m23s
+vault-agent-injector-848dd747d7-qvgl2         1/1     Running   0          8m23s
+```
+
 ### Policy and role configuration (sanitized)
+
+- policy 
+
+```bash
+/ $ vault policy write myapp-policy /tmp/myapp-policy.hcl
+Success! Uploaded policy: myapp-policy
+/ $ vault policy read myapp-policy
+path "secret/data/myapp/config" {
+  capabilities = ["read"]
+}
+```
+
+- role config 
+
+```bash
+vault write auth/kubernetes/role/myapp-role \
+    bound_service_account_names=default \
+    bound_service_account_namespaces=default \
+    policies=myapp-policy \
+    ttl=48h
+```
+
+
 ### Proof of secret injection (show file exists, path structure)
+
+```bash
+(devops) fountainer@Veronicas-MacBook-Air DevOps-Core-Course % kubectl exec -it mysecretrelease-app-python-558b98bb9d-8299m -- /bin/sh
+Defaulted container "app-python" out of: app-python, vault-agent, vault-agent-init (init)
+$ ls -l /vault/secrets
+total 4
+-rw-r--r-- 1 100 newuser 180 Apr  7 23:55 config
+$ cat /vault/secrets/config
+data: map[password:mypass293i20@@nekf username:fountainer]
+metadata: map[created_time:2026-04-07T23:32:33.85543147Z custom_metadata:<nil> deletion_time: destroyed:false version:1]
+$ 
+```
+
 ### Explanation of the sidecar injection pattern
+
+- now every pod contains not only my app container but also vault sidecar container
+- vault is able to authenticate in kubernates and inject secrets into the pod
 
 ## Security Analysis
 
 ### Comparison: K8s Secrets vs Vault
+
+- kubernates secrets are just encoded into base 64 and everyone who gets access to the cluster can decode them and get sensitive data, on the other hand, vault provides data encryption that is much more safer since you need an encryption key to encrypt it
+
 ### When to use each approach
+
+- encoding is good for keeping data usability and integrity, so different machines can use it (like for seeing special symbols on a web page), it is like... more secure than nothing, but not reeally secure
+
+- vault encryption is needed for keeping sensitive data secure, like for storing passwords for the services on the virtual machines, etc
+
 ### Production recommendations
 
+- in production you should always try to use strong encryption algorithms to keep your data secure

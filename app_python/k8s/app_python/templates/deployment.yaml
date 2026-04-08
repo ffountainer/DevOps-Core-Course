@@ -20,6 +20,10 @@ spec:
     metadata:
       labels:
         {{- include "mychart.selectorLabels" . | nindent 8 }}
+      annotations:
+        vault.hashicorp.com/agent-inject: "true"
+        vault.hashicorp.com/role: "myapp-role"
+        vault.hashicorp.com/agent-inject-secret-config: "secret/data/myapp/config"
     spec:
       containers:
         - name: {{ include "mychart.name" . }}

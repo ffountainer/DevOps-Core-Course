@@ -14,6 +14,7 @@ from pythonjsonlogger.json import JsonFormatter
 from prometheus_client import Counter, Histogram, Gauge, generate_latest
 import time
 from flask import g, Response
+from threading import Lock
 
 app = Flask(__name__)  # creating an instance of Flask
 
@@ -62,6 +63,44 @@ system_info_duration = Histogram(
     "devops_info_system_collection_seconds",
     "System info collection time"
 )
+
+DATA_DIR = os.getenv("DATA_DIR", "./data")
+VISITS_FILE = os.path.join(DATA_DIR, "visits")
+
+visits_lock = Lock()
+visits_count = 0
+
+
+def load_visits():
+    global visits_count
+
+    os.makedirs(DATA_DIR, exist_ok=True)
+
+    if not os.path.exists(VISITS_FILE):
+        visits_count = 0
+        return
+
+    try:
+        with open(VISITS_FILE, "r") as f:
+            visits_count = int(f.read().strip())
+    except Exception:
+        visits_count = 0
+
+
+def increment_visits():
+    global visits_count
+
+    with visits_lock:
+        visits_count += 1
+        with open(VISITS_FILE, "w") as f:
+            f.write(str(visits_count))
+
+    return visits_count
+
+
+def get_visits():
+    with visits_lock:
+        return visits_count
 
 
 @app.before_request
@@ -118,6 +157,7 @@ def metrics():
 def get_endpoint():
     start = time.time()
     endpoint_calls.labels(endpoint="/").inc()
+    current_visits = increment_visits()
     logger.info(
         {
             "MESSAGE": f"Request: {request.method} {request.path}",
@@ -129,8 +169,25 @@ def get_endpoint():
             "PATH": request.path,
         },
     )
-    response = jsonify(message=message)
+    response = jsonify({
+        "message": message,
+        "visits": current_visits
+    })
     response.status_code = 200
+    system_info_duration.observe(time.time() - start)
+    return response
+
+
+@app.route("/visits", methods=["GET"])
+def visits():
+    start = time.time()
+    endpoint_calls.labels(endpoint="/visits").inc()
+
+    count = get_visits()
+
+    response = jsonify({"visits": count})
+    response.status_code = 200
+
     system_info_duration.observe(time.time() - start)
     return response
 
@@ -286,5 +343,6 @@ logger.info(
     }
 )
 
+load_visits()
 if __name__ == "__main__":
     app.run(host=ADDRESS, port=PORT, debug=DEBUG)

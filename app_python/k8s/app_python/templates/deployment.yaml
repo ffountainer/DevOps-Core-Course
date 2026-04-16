@@ -39,6 +39,16 @@ spec:
                 secretKeyRef:
                   name: {{ $secretName }}
                   key: username
+            - name: DATA_DIR
+              value: /app/data
+          volumeMounts:
+          - name: config-volume
+            mountPath: /config
+          - name: data-volume
+            mountPath: /app/data
+          envFrom:
+          - configMapRef:
+              name: {{ include "mychart.fullname" . }}-env
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           ports:
             - containerPort: {{ .Values.container.port }}
@@ -63,3 +73,10 @@ spec:
               port: {{ .Values.container.port }}
             initialDelaySeconds: {{ .Values.readinessProbe.initialDelaySeconds }}
             periodSeconds: {{ .Values.readinessProbe.periodSeconds }}
+      volumes:
+        - name: config-volume
+          configMap:
+            name: {{ include "mychart.fullname" . }}-config
+        - name: data-volume
+          persistentVolumeClaim:
+            claimName: {{ include "mychart.fullname" . }}-data

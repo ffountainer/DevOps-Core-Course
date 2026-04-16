@@ -38,6 +38,9 @@ PORT=8080 python app.py # if you want to use a custom port (the default is 5000)
 ### API Endpoints ###
 - `GET /` - Service and system information
 - `GET /health` - Health check
+- `GET /visits` - See the number of times root directory was accessed
+- `GET /ready` - Check if the application is ready to take requests
+- `GET /health` - Check if the application is dead and should be reloaded
 
 ### Configuration ###
 

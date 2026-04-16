@@ -6,6 +6,9 @@
 ### New endpoint documentation
 ### Local testing evidence with Docker
 
+Here you can see the counter value persistence across restarts.
+![](./../docs/screenshots/lab12-shots/counter.png)
+
 ## ConfigMap Implementation
 
 ### ConfigMap template structure

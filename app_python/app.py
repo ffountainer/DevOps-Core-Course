@@ -64,7 +64,7 @@ system_info_duration = Histogram(
     "System info collection time"
 )
 
-DATA_DIR = os.getenv("DATA_DIR", "/app/data")
+DATA_DIR = os.getenv("DATA_DIR", "/tmp/data")
 VISITS_FILE = os.path.join(DATA_DIR, "visits")
 
 visits_lock = Lock()

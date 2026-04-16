@@ -39,9 +39,13 @@ spec:
                 secretKeyRef:
                   name: {{ $secretName }}
                   key: username
+            - name: DATA_DIR
+              value: /app/data
           volumeMounts:
           - name: config-volume
             mountPath: /config
+          - name: data-volume
+            mountPath: /app/data
           envFrom:
           - configMapRef:
               name: {{ include "mychart.fullname" . }}-env
@@ -73,3 +77,6 @@ spec:
         - name: config-volume
           configMap:
             name: {{ include "mychart.fullname" . }}-config
+        - name: data-volume
+          persistentVolumeClaim:
+            claimName: {{ include "mychart.fullname" . }}-data

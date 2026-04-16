@@ -11,6 +11,7 @@ EXPOSE 12345
 RUN apt update && apt install -y curl && rm -rf /var/lib/apt/lists/*
 RUN useradd --create-home --shell /bin/bash newuser
 WORKDIR /app
+RUN mkdir -p /app/data && chown -R newuser:newuser /app
 COPY --from=builder /usr/local/lib/python3.13/site-packages /usr/local/lib/python3.13/site-packages
 COPY --from=builder ./app_python .
 USER newuser

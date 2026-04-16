@@ -1,9 +1,9 @@
-replicaCount: 5
+replicaCount: 1
 
 image:
   repository: fountainer/my-app
-  tag: "2026.03.26"
-  pullPolicy: IfNotPresent
+  tag: "16-04"
+  pullPolicy: Always
 
 container:
   port: 12345
@@ -48,3 +48,8 @@ secret:
 appName: my-app
 environment: dev
 logLevel: info
+
+persistence:
+  enabled: true
+  size: 100Mi
+  storageClass: "" 

@@ -2,7 +2,7 @@
 
 ## Application Changes
 
-###  Description of visits counter implementation
+### Description of visits counter implementation
 ### New endpoint documentation
 ### Local testing evidence with Docker
 
@@ -61,9 +61,23 @@ LOG_LEVEL=info
 ### Access modes and storage class discussion
 ### Volume mount configuration
 ### Persistence test evidence:
-    - Counter value before pod deletion
-    - Pod deletion command
-    - Counter value after new pod starts
+
+```bash
+(devops) fountainer@Veronicas-MacBook-Air app_python % kubectl exec mysecretrelease-app-python-7b6579656c-z6r7b -- cat /app/data/visits
+Defaulted container "app-python" out of: app-python, vault-agent, vault-agent-init (init)
+22%                                                                                                                                             
+(devops) fountainer@Veronicas-MacBook-Air app_python % kubectl delete pod mysecretrelease-app-python-7b6579656c-z6r7b
+pod "mysecretrelease-app-python-7b6579656c-z6r7b" deleted
+(devops) fountainer@Veronicas-MacBook-Air app_python % kubectl get pod
+NAME                                          READY   STATUS    RESTARTS      AGE
+mysecretrelease-app-python-7b6579656c-b2tzf   2/2     Running   0             60s
+vault-0                                       1/1     Running   3 (84m ago)   8d
+vault-agent-injector-848dd747d7-qvgl2         1/1     Running   3 (85m ago)   8d
+(devops) fountainer@Veronicas-MacBook-Air app_python % kubectl exec mysecretrelease-app-python-7b6579656c-b2tzf -- cat /app/data/visits
+Defaulted container "app-python" out of: app-python, vault-agent, vault-agent-init (init)
+22%                                                                                                                                             
+(devops) fountainer@Veronicas-MacBook-Air app_python % 
+```
 
 ## ConfigMap vs Secret
 
@@ -71,8 +85,20 @@ LOG_LEVEL=info
 ### When to use Secret
 ### Key differences
 
-## Required Screenshots/Outputs:
+## Additional Outputs:
 
 ### kubectl get configmap,pvc output
+
+```bash
+(devops) fountainer@Veronicas-MacBook-Air app_python % kubectl get configmap,pvc
+NAME                                          DATA   AGE
+configmap/kube-root-ca.crt                    1      22d
+configmap/mysecretrelease-app-python-config   1      7m2s
+configmap/mysecretrelease-app-python-env      3      7m2s
+
+NAME                                                    STATUS   VOLUME                                     CAPACITY   ACCESS MODES   STORAGECLASS   VOLUMEATTRIBUTESCLASS   AGE
+persistentvolumeclaim/mysecretrelease-app-python-data   Bound    pvc-42d4685f-8463-4434-8959-0bacd5d972b6   100Mi      RWO            standard       <unset>                 7m2s
+(devops) fountainer@Veronicas-MacBook-Air app_python % 
+```
 
 

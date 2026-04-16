@@ -44,3 +44,7 @@ secret:
   data:
     username: "placeholder-user"
     password: "placeholder-password"
+
+appName: my-app
+environment: dev
+logLevel: info

@@ -39,6 +39,12 @@ spec:
                 secretKeyRef:
                   name: {{ $secretName }}
                   key: username
+          volumeMounts:
+          - name: config-volume
+            mountPath: /config
+          envFrom:
+          - configMapRef:
+              name: {{ include "mychart.fullname" . }}-env
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           ports:
             - containerPort: {{ .Values.container.port }}
@@ -63,3 +69,7 @@ spec:
               port: {{ .Values.container.port }}
             initialDelaySeconds: {{ .Values.readinessProbe.initialDelaySeconds }}
             periodSeconds: {{ .Values.readinessProbe.periodSeconds }}
+      volumes:
+        - name: config-volume
+          configMap:
+            name: {{ include "mychart.fullname" . }}-config

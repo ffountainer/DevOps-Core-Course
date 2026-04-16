@@ -3,7 +3,13 @@
 ## Application Changes
 
 ### Description of visits counter implementation
+
+visits counter is a global integer that increases every time / endpoint is called. it writes the value into a file (visits) so it can survive pod restarts via pvc.
+
 ### New endpoint documentation
+
+/visits returns the current stored counter value from data/visits file
+
 ### Local testing evidence with Docker
 
 Here you can see the counter value persistence across restarts.
@@ -12,10 +18,24 @@ Here you can see the counter value persistence across restarts.
 ## ConfigMap Implementation
 
 ### ConfigMap template structure
+
+Helm ConfigMap loads a local config.json file via .Files.Get, so the whole json is injected into the cluster as one config object
+
 ### config.json content
+
+it contains basic app metadata like name, environment, and feature flags (debug, metrics) plus log level settings
+
 ### How ConfigMap is mounted as file
+
+the ConfigMap is mounted as a volume at /config, so inside the container we can read /config/config.json as a normal file.
+
 ### How ConfigMap provides environment variables
+
+by using envFrom: configMapRef to inject keys like APP_NAME, APP_ENV, and LOG_LEVEL directly as environment variables.
+
+
 ### Verification outputs
+
 - File content inside pod (cat /config/config.json)
 
 ```bash
@@ -58,8 +78,17 @@ LOG_LEVEL=info
 ## Persistent Volume
 
 ### PVC configuration explanation
+
+PVC requests a small storage size (100Mi) and creates a persistent volume that is mounted into the pod at /app/data to store the visits file.
+
 ### Access modes and storage class discussion
+
+ReadWriteOnce is used because only one pod needs to write to the volume, and storageClass is optional so it uses the cluster default.
+
 ### Volume mount configuration
+
+the volume is mounted into the container at /app/data, and the app writes visits file there so data stays after pod restarts/recreations
+
 ### Persistence test evidence:
 
 ```bash
@@ -82,8 +111,16 @@ Defaulted container "app-python" out of: app-python, vault-agent, vault-agent-in
 ## ConfigMap vs Secret
 
 ### When to use ConfigMap
+
+ConfigMap is used for non-sensitive configuration like app name, environment, log level, and feature flags.
+
 ### When to use Secret
+
+secret is used for sensitive data like username, password, or anything that should not be visible in plain text
+
 ### Key differences
+
+configMap is plain text and not encrypted, while Secret is base64 encoded and used for sensitive data.
 
 ## Additional Outputs:
 

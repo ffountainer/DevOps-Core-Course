@@ -10,3 +10,5 @@ app_python/reminder.md
 .vscode/settings.json
 
 app_python/monitoring/.env
+
+argocd_pass

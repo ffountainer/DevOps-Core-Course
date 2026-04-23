@@ -71,9 +71,15 @@ Installed the argocd CLI with Homebrew and connected to the server using argocd 
 
 ### Application manifests
 
+Created an ArgoCD Application manifest defining the app name, project, source repository, and destination cluster settings.
+
 ### Source and destination configuration
 
+Configured the application to pull from the Git repository (Helm chart path) and deploy to the in-cluster Kubernetes API in the default namespace.
+
 ### Values file selection
+
+Specified values.yaml as the Helm values file to control application configuration during deployment. To test, I changed the number of replicas from 1 to 3. 
 
 ## Multi-Environment
 
@@ -105,3 +111,4 @@ Installed the argocd CLI with Homebrew and connected to the server using argocd 
 
 ### Application details view
 
+![](./../docs/screenshots/lab13-shots/details.png)

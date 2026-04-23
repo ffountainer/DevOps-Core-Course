@@ -83,11 +83,33 @@ Specified values.yaml as the Helm values file to control application configurati
 
 ## Multi-Environment
 
+```bash
+(devops) fountainer@Veronicas-MacBook-Air DevOps-Core-Course % kubectl get pods -n dev
+NAME                                         READY   STATUS    RESTARTS      AGE
+python-app-dev-app-python-59fdf484d5-g97xn   1/1     Running   1 (22m ago)   22m
+(devops) fountainer@Veronicas-MacBook-Air DevOps-Core-Course % kubectl get pods -n prod
+NAME                                         READY   STATUS    RESTARTS   AGE
+python-app-prod-app-python-9dc9c6fbc-n8mtr   1/1     Running   0          4m14s
+python-app-prod-app-python-9dc9c6fbc-sqflv   1/1     Running   0          21m
+python-app-prod-app-python-9dc9c6fbc-xfvbj   1/1     Running   0          4m14s
+(devops) fountainer@Veronicas-MacBook-Air DevOps-Core-Course % argocd app list
+NAME                    CLUSTER                         NAMESPACE  PROJECT  STATUS  HEALTH   SYNCPOLICY  CONDITIONS  REPO                                               PATH                       TARGET
+argocd/my-app           https://kubernetes.default.svc  default    default  Synced  Healthy  Manual      <none>      https://github.com/ffountainer/DevOps-Core-Course  app_python/k8s/app_python  lab13
+argocd/python-app-dev   https://kubernetes.default.svc  dev        default  Synced  Healthy  Auto-Prune  <none>      https://github.com/ffountainer/DevOps-Core-Course  app_python/k8s/app_python  lab13
+argocd/python-app-prod  https://kubernetes.default.svc  prod       default  Synced  Healthy  Manual      <none>      https://github.com/ffountainer/DevOps-Core-Course  app_python/k8s/app_python  lab13
+```
+
 ### Dev vs Prod configuration differences
+
+Dev uses smaller resource limits and fewer replicas for faster iteration, while prod uses higher replica count and stricter resource limits for stability and performance.
 
 ### Sync policy differences and rationale
 
+Dev is configured with automated sync including self-heal and prune for continuous deployment, while prod uses manual sync to ensure controlled and reviewed releases.
+
 ### Namespace separation
+
+Dev and prod are deployed into separate namespaces to isolate environments, prevent interference, and ensure independent lifecycle management.
 
 ## Self-Healing Evidence
 

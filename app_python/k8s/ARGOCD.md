@@ -115,20 +115,98 @@ Dev and prod are deployed into separate namespaces to isolate environments, prev
 
 ### Manual scale test with before/after
 
+```bash
+(devops) fountainer@Veronicas-MacBook-Air DevOps-Core-Course % kubectl get deploy -n dev
+NAME                        READY   UP-TO-DATE   AVAILABLE   AGE
+python-app-dev-app-python   1/1     1            1           30m
+(devops) fountainer@Veronicas-MacBook-Air DevOps-Core-Course % kubectl scale deployment python-app-dev-app-python  -n dev --replicas=5
+deployment.apps/python-app-dev-app-python scaled
+(devops) fountainer@Veronicas-MacBook-Air DevOps-Core-Course % kubectl get deploy -n dev
+NAME                        READY   UP-TO-DATE   AVAILABLE   AGE
+python-app-dev-app-python   1/1     1            1           31m
+```
+
 ### Pod deletion test
+
+```bash
+(devops) fountainer@Veronicas-MacBook-Air DevOps-Core-Course % kubectl get pods -n dev
+NAME                                         READY   STATUS    RESTARTS      AGE
+python-app-dev-app-python-59fdf484d5-g97xn   1/1     Running   1 (31m ago)   32m
+(devops) fountainer@Veronicas-MacBook-Air DevOps-Core-Course % kubectl delete pod python-app-dev-app-python-59fdf484d5-g97xn -n dev
+pod "python-app-dev-app-python-59fdf484d5-g97xn" deleted
+(devops) fountainer@Veronicas-MacBook-Air DevOps-Core-Course % kubectl get pods -n dev
+NAME                                         READY   STATUS    RESTARTS   AGE
+python-app-dev-app-python-59fdf484d5-249xv   0/1     Running   0          15s
+(devops) fountainer@Veronicas-MacBook-Air DevOps-Core-Course % kubectl get pods -n dev
+NAME                                         READY   STATUS    RESTARTS   AGE
+python-app-dev-app-python-59fdf484d5-249xv   1/1     Running   0          37s
+(devops) fountainer@Veronicas-MacBook-Air DevOps-Core-Course % 
+```
 
 ### Configuration drift test
 
+Here you can see the drift
+![](./../docs/screenshots/lab13-shots/drift.png)
+
+```bash
+(devops) fountainer@Veronicas-MacBook-Air DevOps-Core-Course % argocd app get python-app-dev                                     
+Name:               argocd/python-app-dev
+Project:            default
+Server:             https://kubernetes.default.svc
+Namespace:          dev
+URL:                https://argocd.example.com/applications/python-app-dev
+Source:
+- Repo:             https://github.com/ffountainer/DevOps-Core-Course
+  Target:           lab13
+  Path:             app_python/k8s/app_python
+  Helm Values:      values-dev.yaml
+SyncWindow:         Sync Allowed
+Sync Policy:        Automated (Prune)
+Sync Status:        Synced to lab13 (27593a9)
+Health Status:      Healthy
+
+GROUP  KIND                   NAMESPACE  NAME                                    STATUS     HEALTH   HOOK      MESSAGE
+batch  Job                    dev        python-app-dev-app-python-pre-install   Succeeded           PreSync   Reached expected number of succeeded pods
+       Secret                 dev        app-credentials                         Synced                        secret/app-credentials configured
+       ConfigMap              dev        python-app-dev-app-python-env           Synced                        configmap/python-app-dev-app-python-env unchanged
+       ConfigMap              dev        python-app-dev-app-python-config        Synced                        configmap/python-app-dev-app-python-config unchanged
+       PersistentVolumeClaim  dev        python-app-dev-app-python-data          Synced     Healthy            persistentvolumeclaim/python-app-dev-app-python-data unchanged
+       Service                dev        python-app-dev-app-python-service       Synced     Healthy            service/python-app-dev-app-python-service unchanged
+apps   Deployment             dev        python-app-dev-app-python               Synced     Healthy            deployment.apps/python-app-dev-app-python configured
+batch  Job                    dev        python-app-dev-app-python-post-install  Succeeded           PostSync  Reached expected number of succeeded pods
+(devops) fountainer@Veronicas-MacBook-Air DevOps-Core-Course % kubectl scale deployment python-app-dev-app-python -n dev --replicas=2
+deployment.apps/python-app-dev-app-python scaled
+(devops) fountainer@Veronicas-MacBook-Air DevOps-Core-Course % kubectl get deploy -n dev
+NAME                        READY   UP-TO-DATE   AVAILABLE   AGE
+python-app-dev-app-python   1/1     1            1           52m
+(devops) fountainer@Veronicas-MacBook-Air DevOps-Core-Course % kubectl describe deployment python-app-dev-app-python -n dev | grep Replicas
+Replicas:               1 desired | 1 updated | 1 total | 1 available | 0 unavailable
+  Available      True    MinimumReplicasAvailable
+```
+
 ### Explanation of behaviors
+
+- Explain when ArgoCD syncs vs when Kubernetes heals
+
+ArgoCD references changes in git, and Kubernetes monitors the cluster (it will heal if the pod crushes, etc)
+
+- What triggers ArgoCD sync?
+
+git repo changes, manual sync triggered, auto-sync enabled, drift detected + self-heal enabled
+
+- What is the sync interval?
+
+the default sync is every 3 minutes
 
 ## Screenshots
 
-### ArgoCD UI showing the application
+### ArgoCD UI showing the applications
 
 ![](./../docs/screenshots/lab13-shots/application.png)
 
 ### Sync status
 
+![](./../docs/screenshots/lab13-shots/sync%20status.png)
 ![](./../docs/screenshots/lab13-shots/sync.png)
 
 ### Application details view

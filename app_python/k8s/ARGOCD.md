@@ -95,9 +95,13 @@ Installed the argocd CLI with Homebrew and connected to the server using argocd 
 
 ## Screenshots
 
-### ArgoCD UI showing both applications
+### ArgoCD UI showing the application
+
+![](./../docs/screenshots/lab13-shots/application.png)
 
 ### Sync status
+
+![](./../docs/screenshots/lab13-shots/sync.png)
 
 ### Application details view
 
